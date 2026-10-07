@@ -13,6 +13,7 @@ class ApiService {
   static final ApiService _instance = ApiService._internal();
   static const String _apiBaseUrlOverride =
       'https://lumalisapi.luckyfishes.site';
+  /*'http://10.0.2.2:5053';  //---LocalDebug*/
   static const Duration _defaultTimeout = Duration(seconds: 15);
   static const Duration _uploadTimeout = Duration(minutes: 2);
 

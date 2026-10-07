@@ -82,6 +82,10 @@ namespace MarketOurs.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
+                    b.Property<string>("IpLocation")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<bool>("IsReview")
                         .HasColumnType("boolean");
 
@@ -199,6 +203,10 @@ namespace MarketOurs.Data.Migrations
                     b.PrimitiveCollection<List<string>>("Images")
                         .IsRequired()
                         .HasColumnType("text[]");
+
+                    b.Property<string>("IpLocation")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<bool>("IsReview")
                         .HasColumnType("boolean");
@@ -704,11 +712,13 @@ namespace MarketOurs.Data.Migrations
 
             modelBuilder.Entity("MarketOurs.Data.DataModels.TeacherCommentModel", b =>
                 {
-                    b.HasOne("MarketOurs.Data.DataModels.UserModel", null)
+                    b.HasOne("MarketOurs.Data.DataModels.UserModel", "User")
                         .WithMany("TeacherComments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("PostModelUserModel", b =>

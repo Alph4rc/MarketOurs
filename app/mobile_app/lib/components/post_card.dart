@@ -171,12 +171,24 @@ class PostCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        post.author?.name ?? l10n.anonymousUser,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            post.author?.name ?? l10n.anonymousUser,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'IP属地: ${post.ipLocation?.isNotEmpty == true ? post.ipLocation! : '未知'}',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.mutedForeground,
+                            ),
+                          ),
+                        ],
                       ),
                       Text(
                         formatEditedRelativeDateTime(
@@ -401,6 +413,14 @@ class SimplePostCard extends StatelessWidget {
                 _StatItem(
                   icon: CupertinoIcons.eye,
                   label: '${post.watch ?? 0}',
+                ),
+                const SizedBox(width: 24),
+                Text(
+                  'IP属地: ${post.ipLocation?.isNotEmpty == true ? post.ipLocation! : '未知'}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.mutedForeground,
+                  ),
                 ),
                 const Spacer(),
                 CupertinoButton(

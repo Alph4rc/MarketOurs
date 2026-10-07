@@ -40,6 +40,12 @@ public class CommentModel : DataModel
     public int Dislikes { get; set; }
 
     /// <summary>
+    /// IP 属地（省份或国家）
+    /// </summary>
+    [MaxLength(64)]
+    public string? IpLocation { get; set; }
+
+    /// <summary>
     /// 是否通过审核
     /// </summary>
     public bool IsReview { get; set; }
@@ -139,6 +145,7 @@ public class CommentModel : DataModel
         Images = commitModel.Images;
         Likes = commitModel.Likes;
         Dislikes = commitModel.Dislikes;
+        IpLocation = commitModel.IpLocation;
         IsReview = commitModel.IsReview;
         AiReason = commitModel.AiReason;
         AiReviewedOn = commitModel.AiReviewedOn;

@@ -19,6 +19,8 @@ class CommentDto {
   final String? postId;
   final String? parentCommentId;
   final List<CommentDto>? repliedComments;
+  @JsonKey(name: 'ipLocation')
+  final String? ipLocation;
   final bool? isReview;
   final String? aiReason;
   final DateTime? aiReviewedOn;
@@ -40,6 +42,7 @@ class CommentDto {
     this.postId,
     this.parentCommentId,
     this.repliedComments,
+    this.ipLocation,
     this.isReview,
     this.aiReason,
     this.aiReviewedOn,

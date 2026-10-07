@@ -190,6 +190,8 @@ export default function HotPage() {
                       <div className="min-w-0 text-sm">
                         <span className="font-medium text-foreground/90">{authorName}</span>
                         <span className="mx-1.5 text-muted-foreground/40">·</span>
+                        <span className="text-muted-foreground/60">IP属地: {post.ipLocation || "未知"}</span>
+                        <span className="mx-1.5 text-muted-foreground/40">·</span>
                         <span className="text-muted-foreground/60">
                           {formatPostRelativeDate(post.createdAt, i18n, post.updatedAt, t("post.edited"))}
                         </span>

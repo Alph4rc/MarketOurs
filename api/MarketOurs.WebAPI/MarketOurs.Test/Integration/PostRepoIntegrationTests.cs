@@ -1,5 +1,6 @@
 using MarketOurs.Data;
 using MarketOurs.Data.DataModels;
+using MarketOurs.DataAPI.Configs;
 using MarketOurs.DataAPI.Repos;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,9 +20,10 @@ public class PostRepoIntegrationTests : IntegrationTestBase
         var options = new DbContextOptionsBuilder<MarketContext>()
             .UseNpgsql(TestAssemblySetup.DbConnectionString)
             .Options;
-        
+
         _factory = new TestDbContextFactory(options);
-        _postRepo = new PostRepo(_factory);
+        var hotListConfig = new HotListConfig { MaxPostAge = TimeSpan.FromDays(7) };
+        _postRepo = new PostRepo(_factory, hotListConfig);
         _userRepo = new UserRepo(_factory);
 
         // Clear database

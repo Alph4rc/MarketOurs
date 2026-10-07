@@ -1,8 +1,10 @@
 using MarketOurs.Data.DataModels;
 using MarketOurs.Data.DTOs;
+using MarketOurs.DataAPI.Configs;
 using MarketOurs.DataAPI.Exceptions;
 using MarketOurs.DataAPI.Repos;
 using MarketOurs.DataAPI.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -25,6 +27,8 @@ public class PostServiceTests
     private Mock<IDatabase> _mockDatabase;
     private Mock<ILogger<PostService>> _mockLogger;
     private Mock<ILogger<UploadKeyService>> _mockUploadKeyLogger;
+    private Mock<IIpLocationService> _mockIpLocationService;
+    private Mock<IHttpContextAccessor> _mockHttpContextAccessor;
     private UploadKeyService _uploadKeyService;
     private PostService _postService;
 
@@ -41,6 +45,14 @@ public class PostServiceTests
         _mockDatabase = new Mock<IDatabase>();
         _mockLogger = new Mock<ILogger<PostService>>();
         _mockUploadKeyLogger = new Mock<ILogger<UploadKeyService>>();
+        _mockIpLocationService = new Mock<IIpLocationService>();
+        _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+
+        // Setup default IP location behavior
+        string? outIp = "127.0.0.1";
+        _mockIpLocationService
+            .Setup(s => s.GetClientIpAndLocation(It.IsAny<HttpContext>(), out outIp))
+            .Returns("未知");
 
         _mockRedis.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(_mockDatabase.Object);
         var redisList = new List<IConnectionMultiplexer> { _mockRedis.Object };
@@ -87,6 +99,8 @@ public class PostServiceTests
             .Setup(r => r.SearchDtosAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
             .ReturnsAsync([]);
 
+        var hotListConfig = new HotListConfig { MaxPostAge = TimeSpan.FromDays(7) };
+
         _postService = new PostService(
             _mockPostRepo.Object,
             _mockCommentRepo.Object,
@@ -97,7 +111,10 @@ public class PostServiceTests
             redisList,
             _mockLogger.Object,
             _uploadKeyService,
-            null!
+            null!,
+            hotListConfig,
+            _mockIpLocationService.Object,
+            _mockHttpContextAccessor.Object
         );
     }
 

@@ -90,6 +90,12 @@ public class PostModel : DataModel
     public int Watch { get; set; }
 
     /// <summary>
+    /// IP 属地（省份或国家）
+    /// </summary>
+    [MaxLength(64)]
+    public string? IpLocation { get; set; }
+
+    /// <summary>
     /// 是否通过审核
     /// </summary>
     public bool IsReview { get; set; }
@@ -139,6 +145,7 @@ public class PostModel : DataModel
         Likes = postModel.Likes == 0 ? postModel.LikeUsers.Count : postModel.Likes;
         Dislikes = postModel.Dislikes == 0 ? postModel.DislikeUsers.Count : postModel.Dislikes;
         Watch = postModel.Watch;
+        IpLocation = postModel.IpLocation;
         IsReview = postModel.IsReview;
         AiReason = postModel.AiReason;
         AiReviewedOn = postModel.AiReviewedOn;

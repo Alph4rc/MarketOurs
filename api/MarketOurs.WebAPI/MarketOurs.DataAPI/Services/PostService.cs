@@ -6,6 +6,7 @@ using MarketOurs.Data.DTOs;
 using MarketOurs.DataAPI.Exceptions;
 using MarketOurs.DataAPI.Repos;
 using MarketOurs.DataAPI.Services.Background;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -142,6 +143,8 @@ public class PostService(
     UploadKeyService uploadKeyService,
     IStorageService storageService,
     HotListConfig hotListConfig,
+    IIpLocationService ipLocationService,
+    IHttpContextAccessor httpContextAccessor,
     IPostTagService? postTagService = null,
     ReviewMessageQueue? reviewQueue = null) : IPostService
 {
@@ -495,6 +498,7 @@ public class PostService(
             IsDisliked = dto.IsDisliked,
             Watch = dto.Watch,
             Heat = dto.Heat,
+            IpLocation = dto.IpLocation,
             IsReview = dto.IsReview,
             AiReason = dto.AiReason,
             AiReviewedOn = dto.AiReviewedOn,
@@ -549,6 +553,21 @@ public class PostService(
         var tag = postTagService == null
             ? null
             : await postTagService.GetValidTagForPostAsync(createDto.TagId);
+
+        // 获取客户端 IP 属地（必须在创建实体时立即获取，不能在异步审核后获取）
+        var ipLocation = "未知";
+        try
+        {
+            if (httpContextAccessor.HttpContext != null)
+            {
+                ipLocation = ipLocationService.GetClientIpAndLocation(httpContextAccessor.HttpContext, out _);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to get IP location for post creation");
+        }
+
         var post = new PostModel
         {
             Title = createDto.Title,
@@ -562,6 +581,7 @@ public class PostService(
             Likes = 0,
             Dislikes = 0,
             Watch = 0,
+            IpLocation = ipLocation,
             IsReview = false
         };
 
@@ -984,6 +1004,7 @@ public class PostService(
             Likes = post.Likes,
             Dislikes = post.Dislikes,
             Watch = post.Watch,
+            IpLocation = post.IpLocation,
             IsReview = post.IsReview,
             AiReason = post.AiReason,
             AiReviewedOn = post.AiReviewedOn,

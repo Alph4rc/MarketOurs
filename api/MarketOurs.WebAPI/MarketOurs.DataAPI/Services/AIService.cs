@@ -33,9 +33,21 @@ public interface IAIService
 
 public class AIService(
     Kernel kernel,
-    IChatCompletionService chatCompletionService)
+    IChatCompletionService? chatCompletionService = null)
     : IAIService
 {
+    /// <summary>
+    /// 获取已注册的聊天补全服务；未配置 AI（缺少 AI_ENDPOINT）时抛出
+    /// <see cref="AIReviewUnavailableException"/>，由上层按 AI_REVIEW_FAIL_OPEN 策略降级。
+    /// </summary>
+    private IChatCompletionService RequireChatCompletionService()
+    {
+        return chatCompletionService ?? throw new AIReviewUnavailableException(
+            "AI service is not configured.",
+            new InvalidOperationException(
+                "IChatCompletionService is not registered. Configure AI_ENDPOINT (and AI_API_KEY) to enable AI features."));
+    }
+
     /// <inheritdoc/>
     public Kernel GetKernel()
     {
@@ -47,7 +59,7 @@ public class AIService(
         var chatHistory = new ChatHistory();
         chatHistory.AddUserMessage(message);
 
-        var result = await chatCompletionService.GetChatMessageContentAsync(
+        var result = await RequireChatCompletionService().GetChatMessageContentAsync(
             chatHistory,
             kernel: kernel);
 
@@ -61,10 +73,12 @@ public class AIService(
                                      "如果内容合规，请仅回复“Pass”。如果不合规，请回复违规的具体原因，不要包含任何多余的解释性文字。");
         chatHistory.AddUserMessage(message);
 
+        var service = RequireChatCompletionService();
+
         ChatMessageContent result;
         try
         {
-            result = await chatCompletionService.GetChatMessageContentAsync(
+            result = await service.GetChatMessageContentAsync(
                 chatHistory,
                 kernel: kernel);
         }

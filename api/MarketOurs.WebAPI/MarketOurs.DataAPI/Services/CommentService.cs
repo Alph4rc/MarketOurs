@@ -4,6 +4,7 @@ using MarketOurs.Data.DTOs;
 using MarketOurs.DataAPI.Exceptions;
 using MarketOurs.DataAPI.Repos;
 using MarketOurs.DataAPI.Services.Background;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -76,6 +77,8 @@ public class CommentService(
     IDistributedCache distributedCache,
     NotificationMessageQueue notificationQueue,
     ILogger<CommentService> logger,
+    IIpLocationService ipLocationService,
+    IHttpContextAccessor httpContextAccessor,
     ReviewMessageQueue? reviewQueue = null) : ICommentService
 {
     private static readonly TimeSpan LocalCacheTtl = TimeSpan.FromMinutes(1);
@@ -188,6 +191,20 @@ public class CommentService(
             }
         }
 
+        // 获取客户端 IP 属地（必须在创建实体时立即获取，不能在异步审核后获取）
+        var ipLocation = "未知";
+        try
+        {
+            if (httpContextAccessor.HttpContext != null)
+            {
+                ipLocation = ipLocationService.GetClientIpAndLocation(httpContextAccessor.HttpContext, out _);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to get IP location for comment creation");
+        }
+
         var comment = new CommentModel
         {
             Content = createDto.Content.Trim(),
@@ -199,6 +216,7 @@ public class CommentService(
             UpdatedAt = DateTime.UtcNow,
             Likes = 0,
             Dislikes = 0,
+            IpLocation = ipLocation,
             IsReview = false
         };
 
@@ -350,6 +368,7 @@ public class CommentService(
             Images = comment.Images,
             Likes = comment.Likes,
             Dislikes = comment.Dislikes,
+            IpLocation = comment.IpLocation,
             IsReview = comment.IsReview,
             AiReason = comment.AiReason,
             AiReviewedOn = comment.AiReviewedOn,

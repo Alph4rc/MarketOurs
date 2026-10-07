@@ -1,6 +1,8 @@
 using MarketOurs.Data.DataModels;
+using MarketOurs.DataAPI.Configs;
 using MarketOurs.DataAPI.Repos;
 using MarketOurs.DataAPI.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -23,6 +25,8 @@ public class CacheScenariosTests
     private Mock<IConnectionMultiplexer> _mockRedis;
     private Mock<IDatabase> _mockDatabase;
     private Mock<ILogger<PostService>> _mockLogger;
+    private Mock<IIpLocationService> _mockIpLocationService;
+    private Mock<IHttpContextAccessor> _mockHttpContextAccessor;
     private PostService _postService;
 
     [SetUp]
@@ -37,9 +41,19 @@ public class CacheScenariosTests
         _mockRedis = new Mock<IConnectionMultiplexer>();
         _mockDatabase = new Mock<IDatabase>();
         _mockLogger = new Mock<ILogger<PostService>>();
+        _mockIpLocationService = new Mock<IIpLocationService>();
+        _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
+
+        // Setup default IP location behavior
+        string? outIp = "127.0.0.1";
+        _mockIpLocationService
+            .Setup(s => s.GetClientIpAndLocation(It.IsAny<HttpContext>(), out outIp))
+            .Returns("未知");
 
         _mockRedis.Setup(r => r.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(_mockDatabase.Object);
         var redisList = new List<IConnectionMultiplexer> { _mockRedis.Object };
+
+        var hotListConfig = new HotListConfig { MaxPostAge = TimeSpan.FromDays(7) };
 
         _postService = new PostService(
             _mockPostRepo.Object,
@@ -51,9 +65,12 @@ public class CacheScenariosTests
             redisList,
             _mockLogger.Object,
             null!,
-            null!
+            null!,
+            hotListConfig,
+            _mockIpLocationService.Object,
+            _mockHttpContextAccessor.Object
         );
-        
+
         // Setup basic user and like mocks to avoid null refs
         _mockUserRepo.Setup(r => r.GetByIdAsync(It.IsAny<string>()))
             .ReturnsAsync(new UserModel { Id = "test-user", Name = "TestUser" });

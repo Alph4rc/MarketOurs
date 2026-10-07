@@ -210,13 +210,29 @@ class _CommentCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      comment.author?.name ??
-                          AppLocalizations.of(context).anonymousUser,
-                      style: TextStyle(
-                        fontSize: isReply ? 13 : 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            comment.author?.name ??
+                                AppLocalizations.of(context).anonymousUser,
+                            style: TextStyle(
+                              fontSize: isReply ? 13 : 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'IP属地: ${comment.ipLocation?.isNotEmpty == true ? comment.ipLocation! : '未知'}',
+                          style: TextStyle(
+                            fontSize: isReply ? 9 : 10,
+                            color: AppColors.mutedForeground,
+                          ),
+                        ),
+                      ],
                     ),
                     Text(
                       formatEditedRelativeDateTime(

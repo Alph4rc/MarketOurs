@@ -86,7 +86,12 @@ public class PostDto
     /// 热榜热度分值（仅热榜接口返回）
     /// </summary>
     public int? Heat { get; set; }
-    
+
+    /// <summary>
+    /// IP 属地
+    /// </summary>
+    public string? IpLocation { get; set; }
+
     /// <summary>
     /// 是否通过审核
     /// </summary>

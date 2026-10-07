@@ -4,6 +4,7 @@ using MarketOurs.DataAPI.Exceptions;
 using MarketOurs.DataAPI.Repos;
 using MarketOurs.DataAPI.Services;
 using MarketOurs.DataAPI.Services.Background;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,8 @@ public class CommentServiceTests
     private Mock<IDistributedCache> _mockDistributedCache = null!;
     private Mock<ILogger<CommentService>> _mockLogger = null!;
     private Mock<IPostRepo> _mockPostRepo = null!;
+    private Mock<IIpLocationService> _mockIpLocationService = null!;
+    private Mock<IHttpContextAccessor> _mockHttpContextAccessor = null!;
     private NotificationMessageQueue _notificationQueue = null!;
     private ReviewMessageQueue _reviewQueue = null!;
     private CommentService _commentService = null!;
@@ -35,8 +38,16 @@ public class CommentServiceTests
         _mockDistributedCache = new Mock<IDistributedCache>();
         _mockLogger = new Mock<ILogger<CommentService>>();
         _mockPostRepo = new Mock<IPostRepo>();
+        _mockIpLocationService = new Mock<IIpLocationService>();
+        _mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
         _notificationQueue = new NotificationMessageQueue();
         _reviewQueue = new ReviewMessageQueue();
+
+        // Setup default IP location behavior
+        string? outIp = "127.0.0.1";
+        _mockIpLocationService
+            .Setup(s => s.GetClientIpAndLocation(It.IsAny<HttpContext>(), out outIp))
+            .Returns("未知");
 
         object? expectedValue = null;
         _mockMemoryCache
@@ -55,6 +66,8 @@ public class CommentServiceTests
             _mockDistributedCache.Object,
             _notificationQueue,
             _mockLogger.Object,
+            _mockIpLocationService.Object,
+            _mockHttpContextAccessor.Object,
             _reviewQueue
         );
     }
