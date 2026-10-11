@@ -207,6 +207,14 @@ class _HotPostCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(width: 12),
+                Text(
+                  'IP属地: ${post.ipLocation?.isNotEmpty == true ? post.ipLocation! : '未知'}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.mutedForeground,
+                  ),
+                ),
                 const Spacer(),
                 const Icon(
                   CupertinoIcons.chevron_right,

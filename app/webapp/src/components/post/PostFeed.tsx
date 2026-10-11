@@ -118,7 +118,10 @@ export function PostCard({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate">{displayName}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold truncate">{displayName}</p>
+              <span className="text-xs text-muted-foreground">IP属地: {post.ipLocation || "未知"}</span>
+            </div>
             <p className="text-xs text-muted-foreground">
               {formatPostRelativeDate(post.createdAt, i18n, post.updatedAt, t("post.edited"))}
             </p>

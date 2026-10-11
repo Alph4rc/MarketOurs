@@ -174,6 +174,7 @@ export interface PostDto {
   isDisliked?: boolean;
   watch: number;
   heat?: number | null;
+  ipLocation?: string | null;
   isReview: boolean;
   aiReason?: string | null;
   aiReviewedOn?: string | null;
@@ -210,6 +211,7 @@ export interface CommentDto {
   dislikes: number;
   isLiked?: boolean;
   isDisliked?: boolean;
+  ipLocation?: string | null;
   isReview: boolean;
   createdAt: string;
   updatedAt: string;

@@ -57,12 +57,28 @@ class PostDetailHero extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                post.author?.name ?? AppLocalizations.of(context).anonymousUser,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                              Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      post.author?.name ?? AppLocalizations.of(context).anonymousUser,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'IP属地: ${post.ipLocation?.isNotEmpty == true ? post.ipLocation! : '未知'}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.mutedForeground,
+                                    ),
+                                  ),
+                                ],
                               ),
                               Text(
                                 formatEditedRelativeDateTime(

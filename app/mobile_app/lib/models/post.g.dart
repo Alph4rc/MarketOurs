@@ -53,6 +53,7 @@ PostDto _$PostDtoFromJson(Map<String, dynamic> json) => PostDto(
   watch: (json['watch'] as num?)?.toInt(),
   heat: (json['heat'] as num?)?.toInt(),
   commentsCount: (json['commentsCount'] as num?)?.toInt(),
+  ipLocation: json['ipLocation'] as String?,
   isReview: json['isReview'] as bool?,
   aiReason: json['aiReason'] as String?,
   aiReviewedOn: json['aiReviewedOn'] == null
@@ -82,6 +83,7 @@ Map<String, dynamic> _$PostDtoToJson(PostDto instance) => <String, dynamic>{
   'watch': instance.watch,
   'heat': instance.heat,
   'commentsCount': instance.commentsCount,
+  'ipLocation': instance.ipLocation,
   'isReview': instance.isReview,
   'aiReason': instance.aiReason,
   'aiReviewedOn': instance.aiReviewedOn?.toIso8601String(),

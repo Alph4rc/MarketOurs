@@ -43,6 +43,8 @@ class PostDto {
   final int? watch;
   final int? heat;
   final int? commentsCount;
+  @JsonKey(name: 'ipLocation')
+  final String? ipLocation;
   final bool? isReview;
   final String? aiReason;
   final DateTime? aiReviewedOn;
@@ -67,6 +69,7 @@ class PostDto {
     this.watch,
     this.heat,
     this.commentsCount,
+    this.ipLocation,
     this.isReview,
     this.aiReason,
     this.aiReviewedOn,

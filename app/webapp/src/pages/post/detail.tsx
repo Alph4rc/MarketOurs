@@ -514,9 +514,12 @@ function CommentItem({
           }}
         >
           <div className="flex items-center justify-between mb-1">
-            <Link to={`/user/${comment.userId}`} className="font-bold text-sm transition-colors hover:text-primary">
-              {displayName}
-            </Link>
+            <div className="flex items-center gap-2 min-w-0">
+              <Link to={`/user/${comment.userId}`} className="font-bold text-sm transition-colors hover:text-primary">
+                {displayName}
+              </Link>
+              <span className="text-xs text-muted-foreground shrink-0">IP属地: {comment.ipLocation || "未知"}</span>
+            </div>
             <p className="text-xs text-muted-foreground">
               {formatEditedRelativeTime(comment.createdAt, i18n.resolvedLanguage, comment.updatedAt, t("post.edited"))}
             </p>
@@ -1238,9 +1241,12 @@ export default function PostDetailPage() {
               <OptimizedImage src={authorAvatar} alt={authorName} className="w-12 h-12 rounded-full bg-muted shadow-inner" />
             </Link>
             <div className="flex-1">
-              <Link to={`/user/${post.userId}`} className="font-bold text-lg transition-colors hover:text-primary">
-                {displayName}
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link to={`/user/${post.userId}`} className="font-bold text-lg transition-colors hover:text-primary">
+                  {displayName}
+                </Link>
+                <span className="text-xs text-muted-foreground">IP属地: {post.ipLocation || "未知"}</span>
+              </div>
               <p className="text-sm text-muted-foreground">
                 {formatEditedRelativeTime(post.createdAt, i18n.resolvedLanguage, post.updatedAt, t("post.edited"))}
               </p>

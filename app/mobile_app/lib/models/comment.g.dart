@@ -29,6 +29,7 @@ CommentDto _$CommentDtoFromJson(Map<String, dynamic> json) => CommentDto(
   repliedComments: (json['repliedComments'] as List<dynamic>?)
       ?.map((e) => CommentDto.fromJson(e as Map<String, dynamic>))
       .toList(),
+  ipLocation: json['ipLocation'] as String?,
   isReview: json['isReview'] as bool?,
   aiReason: json['aiReason'] as String?,
   aiReviewedOn: json['aiReviewedOn'] == null
@@ -56,6 +57,7 @@ Map<String, dynamic> _$CommentDtoToJson(CommentDto instance) =>
       'postId': instance.postId,
       'parentCommentId': instance.parentCommentId,
       'repliedComments': instance.repliedComments,
+      'ipLocation': instance.ipLocation,
       'isReview': instance.isReview,
       'aiReason': instance.aiReason,
       'aiReviewedOn': instance.aiReviewedOn?.toIso8601String(),

@@ -43,6 +43,11 @@ public class CommentDto
     public bool IsDisliked { get; set; }
 
     /// <summary>
+    /// IP 属地
+    /// </summary>
+    public string? IpLocation { get; set; }
+
+    /// <summary>
     /// 是否通过审核
     /// </summary>
     public bool IsReview { get; set; }

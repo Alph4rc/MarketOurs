@@ -60,6 +60,10 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ICaptchaService, CaptchaService>();
+
+        // IP 属地服务（必须使用 Singleton，避免重复加载 xdb 文件）
+        services.AddSingleton<IIpLocationService, IpLocationService>();
+        services.AddHttpContextAccessor();
     }
 
     private static void RegisterPushService(IServiceCollection services)
@@ -200,8 +204,11 @@ public static class ServiceCollectionExtensions
         var emailConfig = new EmailConfig()
         {
             Host = Environment.GetEnvironmentVariable("EMAIL_HOST", EnvironmentVariableTarget.Process) ?? "localhost",
-            Port = Convert.ToInt32(
-                Environment.GetEnvironmentVariable("EMAIL_PORT", EnvironmentVariableTarget.Process) ?? "564"),
+            Port = int.TryParse(
+                Environment.GetEnvironmentVariable("EMAIL_PORT", EnvironmentVariableTarget.Process),
+                out var emailPort)
+                ? emailPort
+                : 564,
             Username = Environment.GetEnvironmentVariable("EMAIL_USERNAME", EnvironmentVariableTarget.Process),
             Password = Environment.GetEnvironmentVariable("EMAIL_PASSWORD", EnvironmentVariableTarget.Process),
             Email = Environment.GetEnvironmentVariable("EMAIL")
@@ -293,11 +300,17 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RsaKeyManager>();
 
         var kernelBuilder = services.AddKernel();
-        if (aiConfig.Provider?.Equals("AzureOpenAI", StringComparison.OrdinalIgnoreCase) == true)
+        if (!Uri.TryCreate(aiConfig.Endpoint, UriKind.Absolute, out var aiEndpoint))
+        {
+            Console.WriteLine(
+                "[Config] AI_ENDPOINT is missing or not a valid absolute URI; AI chat completion will not be registered. " +
+                "AI content review falls back to the sensitive-word filter and the AI_REVIEW_FAIL_OPEN policy.");
+        }
+        else if (aiConfig.Provider?.Equals("AzureOpenAI", StringComparison.OrdinalIgnoreCase) == true)
         {
             kernelBuilder.AddAzureOpenAIChatCompletion(
                 aiConfig.DeploymentName ?? "gpt-4o",
-                aiConfig.Endpoint ?? string.Empty,
+                aiEndpoint.ToString(),
                 aiConfig.ApiKey ?? string.Empty,
                 aiConfig.ModelId ?? "gpt-4o");
         }
@@ -306,7 +319,7 @@ public static class ServiceCollectionExtensions
             kernelBuilder.AddOpenAIChatCompletion(
                 modelId: aiConfig.ModelId ?? "deepseek-chat",
                 apiKey: aiConfig.ApiKey ?? string.Empty,
-                endpoint: new Uri(aiConfig.Endpoint ?? string.Empty));
+                endpoint: aiEndpoint);
         }
     }
 
