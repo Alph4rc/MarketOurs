@@ -31,6 +31,24 @@ class NavigationRefreshNotifier extends Notifier<NavigationRefreshEvent?> {
 
 final postServiceProvider = Provider<PostService>((ref) => PostService());
 
+/// Active post tags used to build the tag tabs on the home page.
+///
+/// Tags change rarely, so the result is kept alive for the app session and can
+/// be refreshed with `ref.invalidate(postTagsProvider)` on failure.
+final postTagsProvider = FutureProvider<List<PostTagDto>>((ref) async {
+  final response = await ref.watch(postServiceProvider).getPostTags();
+  final tags =
+      (response.data ?? const <PostTagDto>[])
+          .where((tag) => tag.isActive != false)
+          .toList()
+        ..sort((a, b) {
+          final aName = a.name?.trim() ?? '';
+          final bName = b.name?.trim() ?? '';
+          return aName.compareTo(bName);
+        });
+  return tags;
+});
+
 final homeFeedProvider = AsyncNotifierProvider<HomeFeedNotifier, HomeFeedState>(
   HomeFeedNotifier.new,
 );

@@ -1,11 +1,13 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:luamris_ui/luamris_ui.dart';
 
 import '../models/post.dart';
+import '../providers/home_tab_provider.dart';
 import '../router/app_router.dart';
 
-class PostTagPill extends StatelessWidget {
+class PostTagPill extends ConsumerWidget {
   const PostTagPill({
     super.key,
     required this.tag,
@@ -18,7 +20,7 @@ class PostTagPill extends StatelessWidget {
   final bool clickable;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final hasTag = tag != null;
     final label = tag?.name?.trim().isNotEmpty == true
         ? tag!.name!.trim()
@@ -52,7 +54,12 @@ class PostTagPill extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => context.push(buildTagLocation(tag!.id)),
+      onTap: () {
+        ref
+            .read(homeTabControllerProvider.notifier)
+            .selectTag(tag!.id, name: tag!.name);
+        context.go(AppRoutePaths.home);
+      },
       child: child,
     );
   }

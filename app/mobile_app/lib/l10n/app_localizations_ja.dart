@@ -94,6 +94,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get tabHot => 'トレンド';
 
   @override
+  String get homeTabLatest => '最新';
+
+  @override
   String get tabNotifications => '通知';
 
   @override

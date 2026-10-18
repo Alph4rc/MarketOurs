@@ -8,6 +8,7 @@ import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 
 import '../../models/notification.dart';
+import '../../providers/home_tab_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/post_feed_provider.dart';
 import '../../router/app_router.dart';
@@ -131,7 +132,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       _,
       event,
     ) {
-      if (event?.index == 3 && mounted) unawaited(_loadNotifications());
+      if (event?.index == 2 && mounted) unawaited(_loadNotifications());
     });
     final visibleNotifications = _visibleNotifications;
     return CupertinoPageScaffold(
@@ -260,7 +261,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
 
     final params = n.typedParams;
     if (n.type == NotificationType.hotList) {
-      context.go(AppRoutePaths.hot);
+      ref.read(homeTabControllerProvider.notifier).selectHot();
+      context.go(AppRoutePaths.home);
     } else if (params is ReviewParams &&
         params.entityType == 'teacherComment') {
       return;

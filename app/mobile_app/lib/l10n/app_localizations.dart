@@ -276,6 +276,12 @@ abstract class AppLocalizations {
   /// **'热榜'**
   String get tabHot;
 
+  /// No description provided for @homeTabLatest.
+  ///
+  /// In zh, this message translates to:
+  /// **'最新'**
+  String get homeTabLatest;
+
   /// No description provided for @tabNotifications.
   ///
   /// In zh, this message translates to:

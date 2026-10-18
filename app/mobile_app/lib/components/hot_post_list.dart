@@ -1,95 +1,20 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../models/post.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/post_feed_provider.dart';
-import '../../router/app_router.dart';
-import '../../services/error_messages.dart';
-import '../../ui/app_responsive.dart';
+import '../models/post.dart';
+import '../router/app_router.dart';
+import '../ui/app_responsive.dart';
 
-class HotScreen extends ConsumerWidget {
-  const HotScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final hotFeedAsync = ref.watch(hotFeedProvider);
-    final authState = ref.watch(authControllerProvider).asData?.value;
-    final isAuthenticated = authState?.status == AuthStatus.authenticated;
-
-    return CupertinoPageScaffold(
-      backgroundColor: context.mc.background,
-      child: hotFeedAsync.when(
-        data: (state) => CustomScrollView(
-          physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
-          ),
-          slivers: [
-            CupertinoSliverNavigationBar(
-              largeTitle: Text(AppLocalizations.of(context).tabHot),
-              backgroundColor: context.mc.background.withValues(alpha: 0.94),
-              border: null,
-              trailing: CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  if (isAuthenticated) {
-                    context.push(AppRoutePaths.createPost);
-                  } else {
-                    context.go(AppRoutePaths.login);
-                  }
-                },
-                child: Icon(
-                  CupertinoIcons.plus_circle_fill,
-                  size: 28,
-                  color: context.mc.primary,
-                ),
-              ),
-            ),
-            CupertinoSliverRefreshControl(
-              onRefresh: ref.read(hotFeedProvider.notifier).refresh,
-            ),
-            AppResponsiveSliverPadding(child: _HotPostList(posts: state.posts)),
-          ],
-        ),
-        loading: () =>
-            const Center(child: CupertinoActivityIndicator(radius: 14)),
-        error: (error, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: McEmpty.placeholder(
-              icon: CupertinoIcons.exclamationmark_triangle,
-              title: AppLocalizations.of(context).loadingFailed,
-              description: extractErrorFromException(error),
-              action: McButton.primary(
-                onPressed: () => ref.read(hotFeedProvider.notifier).refresh(),
-                child: Text(AppLocalizations.of(context).retry),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _HotPostList extends StatelessWidget {
-  const _HotPostList({required this.posts});
+/// Ranked post list used by the home 热榜 tab.
+class HotPostList extends StatelessWidget {
+  const HotPostList({super.key, required this.posts});
 
   final List<PostDto> posts;
 
   @override
   Widget build(BuildContext context) {
-    if (posts.isEmpty) {
-      return McEmpty.placeholder(
-        icon: CupertinoIcons.flame,
-        title: AppLocalizations.of(context).hotListEmpty,
-        description: AppLocalizations.of(context).hotListEmptyDesc,
-      );
-    }
-
     final columns = AppResponsive.listColumnCount(context);
     if (columns == 1) {
       return Column(
@@ -191,7 +116,7 @@ class _HotPostCard extends StatelessWidget {
                     Icon(CupertinoIcons.flame, color: rankColor, size: 14),
                     const SizedBox(width: 4),
                     Text(
-                      AppLocalizations.of(context).hotWatch(hot),
+                      l10n.hotWatch(hot),
                       style: TextStyle(
                         fontSize: 13,
                         color: rankColor,

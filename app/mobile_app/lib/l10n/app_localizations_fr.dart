@@ -94,6 +94,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tabHot => 'Tendances';
 
   @override
+  String get homeTabLatest => 'Récents';
+
+  @override
   String get tabNotifications => 'Notifications';
 
   @override

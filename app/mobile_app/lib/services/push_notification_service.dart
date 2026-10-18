@@ -30,7 +30,8 @@ class PushNotificationService {
   static const String provider = 'jpush';
   static const String channelId = 'marketours_notifications';
   static const String channelName = 'LightHub Notifications';
-  static const String channelDescription = 'For comment replies, trending updates, and system notifications';
+  static const String channelDescription =
+      'For comment replies, trending updates, and system notifications';
   static const String _tokenEndpoint = '/User/push-token';
 
   final Dio _api = ApiService().dio;
@@ -195,35 +196,46 @@ class PushNotificationService {
       return;
     }
 
-    const androidSettings = AndroidInitializationSettings(
-      '@drawable/ic_stat_marketours_notification',
-    );
-    const iosSettings = DarwinInitializationSettings();
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
+    try {
+      const androidSettings = AndroidInitializationSettings(
+        '@drawable/ic_stat_marketours_notification',
+      );
+      const iosSettings = DarwinInitializationSettings();
+      const initSettings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
 
-    await _localNotifications.initialize(
-      settings: initSettings,
-      onDidReceiveNotificationResponse: _onLocalNotificationTapped,
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
-    );
+      await _localNotifications.initialize(
+        settings: initSettings,
+        onDidReceiveNotificationResponse: _onLocalNotificationTapped,
+        onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+      );
 
-    const androidChannel = AndroidNotificationChannel(
-      channelId,
-      channelName,
-      description: channelDescription,
-      importance: Importance.max,
-    );
+      const androidChannel = AndroidNotificationChannel(
+        channelId,
+        channelName,
+        description: channelDescription,
+        importance: Importance.max,
+      );
 
-    final androidPlugin = _localNotifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-    await androidPlugin?.createNotificationChannel(androidChannel);
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      await androidPlugin?.createNotificationChannel(androidChannel);
 
-    _localNotificationsReady = true;
+      _localNotificationsReady = true;
+    } catch (error, stackTrace) {
+      // Plugin registration may be unavailable (for example in widget tests
+      // or on unsupported platforms). Push setup should not crash the app.
+      AppLogger.error(
+        'PushNotificationService',
+        'Local notification initialization failed. Local reminders are disabled.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   Future<void> _registerToken(String token) async {

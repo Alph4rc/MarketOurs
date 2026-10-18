@@ -94,6 +94,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tabHot => 'Популярное';
 
   @override
+  String get homeTabLatest => 'Новое';
+
+  @override
   String get tabNotifications => 'Уведомления';
 
   @override

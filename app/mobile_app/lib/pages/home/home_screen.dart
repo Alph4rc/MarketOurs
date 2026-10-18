@@ -1,17 +1,27 @@
+import 'dart:async';
+
 import 'package:cupertino_ui/cupertino_ui.dart';
-import 'package:luamris_ui/luamris_ui.dart';
-import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/components/post_card.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
+import '../../components/hot_post_list.dart';
+import '../../components/post_feed_list.dart';
+import '../../l10n/app_localizations.dart';
 import '../../models/post.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/home_tab_provider.dart';
 import '../../providers/post_feed_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/error_messages.dart';
 import '../../ui/app_responsive.dart';
+import 'widgets/home_tab_bar.dart';
 
+/// Home page with Zhihu-style top tabs: 最新, 热榜 and one tab per active tag.
+///
+/// The three former pages (home feed, hot list and tag page) are rendered
+/// inside a single scroll view; the selected tab lives in
+/// [homeTabControllerProvider] so tag pills and notifications can jump here.
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -22,21 +32,17 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late final ScrollController _scrollController;
   final _searchController = TextEditingController();
-  List<PostTagDto> _tags = const [];
-  bool _hasLoadedTags = false;
-  bool _isLoadingTags = false;
+  final Map<String, double> _scrollOffsets = {};
+  late String _activeTabKey;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController()..addListener(_handleScroll);
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Reset tag cache so tags reload with new locale
-    _hasLoadedTags = false;
+    final selected = ref.read(homeTabControllerProvider).selected;
+    _activeTabKey = selected.key;
+    _setSearchText(_keywordFor(selected));
   }
 
   @override
@@ -48,149 +54,215 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
-  void _handleScroll() {
-    if (!_scrollController.hasClients) {
-      return;
+  HomeTab get _selectedTab => ref.read(homeTabControllerProvider).selected;
+
+  String _keywordFor(HomeTab tab) {
+    return switch (tab.kind) {
+      HomeTabKind.latest =>
+        ref.read(homeFeedProvider).asData?.value.keyword ?? '',
+      HomeTabKind.hot => '',
+      HomeTabKind.tag => switch (tab.tagId) {
+        final tagId? =>
+          ref.read(tagFeedProvider(tagId)).asData?.value.keyword ?? '',
+        null => '',
+      },
+    };
+  }
+
+  void _setSearchText(String text) {
+    if (_searchController.text == text) return;
+    _searchController.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
+  void _handleSelectionChanged(HomeTab next) {
+    if (_scrollController.hasClients) {
+      _scrollOffsets[_activeTabKey] = _scrollController.offset;
     }
+    _activeTabKey = next.key;
+    _setSearchText(_keywordFor(next));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      final savedOffset = _scrollOffsets[next.key] ?? 0;
+      final target = savedOffset.clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      );
+      if ((_scrollController.offset - target).abs() > 0.5) {
+        _scrollController.jumpTo(target);
+      }
+    });
+  }
+
+  void _handleScroll() {
+    if (!_scrollController.hasClients) return;
 
     final position = _scrollController.position;
-    if (position.pixels >= position.maxScrollExtent - 480) {
-      ref.read(homeFeedProvider.notifier).loadMore();
+    if (position.pixels < position.maxScrollExtent - 480) return;
+
+    final tab = _selectedTab;
+    switch (tab.kind) {
+      case HomeTabKind.latest:
+        unawaited(ref.read(homeFeedProvider.notifier).loadMore());
+      case HomeTabKind.tag:
+        final tagId = tab.tagId;
+        if (tagId != null) {
+          unawaited(ref.read(tagFeedProvider(tagId).notifier).loadMore());
+        }
+      case HomeTabKind.hot:
+        break;
     }
   }
 
-  Future<void> _openTagPicker() async {
-    if (_isLoadingTags) {
-      return;
+  Future<void> _refreshActiveTab() async {
+    final tab = _selectedTab;
+    switch (tab.kind) {
+      case HomeTabKind.latest:
+        await ref.read(homeFeedProvider.notifier).refresh();
+      case HomeTabKind.hot:
+        await ref.read(hotFeedProvider.notifier).refresh();
+      case HomeTabKind.tag:
+        final tagId = tab.tagId;
+        if (tagId != null) {
+          await ref.read(tagFeedProvider(tagId).notifier).refresh();
+        }
+    }
+  }
+
+  void _submitSearch(String value) {
+    final keyword = value.trim();
+    final tab = _selectedTab;
+    switch (tab.kind) {
+      case HomeTabKind.latest:
+        unawaited(ref.read(homeFeedProvider.notifier).search(keyword));
+      case HomeTabKind.tag:
+        final tagId = tab.tagId;
+        if (tagId != null) {
+          unawaited(ref.read(tagFeedProvider(tagId).notifier).search(keyword));
+        }
+      case HomeTabKind.hot:
+        break;
+    }
+  }
+
+  void _handleSearchChanged(String value) {
+    if (value.trim().isNotEmpty) return;
+
+    final tab = _selectedTab;
+    if (_keywordFor(tab).isEmpty) return;
+
+    switch (tab.kind) {
+      case HomeTabKind.latest:
+        unawaited(ref.read(homeFeedProvider.notifier).clearSearch());
+      case HomeTabKind.tag:
+        final tagId = tab.tagId;
+        if (tagId != null) {
+          unawaited(ref.read(tagFeedProvider(tagId).notifier).clearSearch());
+        }
+      case HomeTabKind.hot:
+        break;
+    }
+  }
+
+  List<HomeTab> _buildTabs(List<PostTagDto> tags, HomeTabState selection) {
+    final tagNamesById = <String, String?>{};
+    for (final tag in tags) {
+      tagNamesById[tag.id] = tag.name?.trim();
+    }
+    // Keep tabs opened from a post tag pill even when the tag list has not
+    // loaded yet (or no longer contains that tag).
+    for (final extra in selection.extraTags) {
+      final tagId = extra.tagId;
+      if (tagId == null) continue;
+      tagNamesById.putIfAbsent(tagId, () => extra.tagName?.trim());
     }
 
-    setState(() => _isLoadingTags = true);
+    final tagTabs = [
+      for (final entry in tagNamesById.entries)
+        HomeTab.tag(tagId: entry.key, tagName: entry.value),
+    ]..sort((a, b) => (a.tagName ?? '').compareTo(b.tagName ?? ''));
 
-    try {
-      if (!_hasLoadedTags) {
-        final response = await ref.read(postServiceProvider).getPostTags();
-        final tags =
-            (response.data ?? const <PostTagDto>[])
-                .where((tag) => tag.isActive != false)
-                .toList()
-              ..sort((a, b) {
-                final aName = a.name?.trim() ?? '';
-                final bName = b.name?.trim() ?? '';
-                return aName.compareTo(bName);
-              });
-
-        if (!mounted) return;
-        setState(() {
-          _tags = tags;
-          _hasLoadedTags = true;
-        });
-      }
-
-      if (!mounted) return;
-
-      if (_tags.isEmpty) {
-        await McFeedback.showInfo(
-          context,
-          message: AppLocalizations.of(context).noTagAvailable,
-        );
-        return;
-      }
-
-      final selectedTag = await showCupertinoModalPopup<PostTagDto>(
-        context: context,
-        builder: (ctx) => CupertinoActionSheet(
-          title: Text(AppLocalizations.of(context).enterTagPage),
-          message: Text(AppLocalizations.of(context).chooseTagHint),
-          actions: [
-            for (final tag in _tags)
-              CupertinoActionSheetAction(
-                onPressed: () => Navigator.of(ctx).pop(tag),
-                child: Text(
-                  tag.name?.trim().isNotEmpty == true
-                      ? tag.name!.trim()
-                      : AppLocalizations.of(context).unnamedTag,
-                ),
-              ),
-          ],
-          cancelButton: CupertinoActionSheetAction(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(AppLocalizations.of(context).cancel),
-          ),
-        ),
-      );
-
-      if (!mounted || selectedTag == null) {
-        return;
-      }
-
-      context.push(buildTagLocation(selectedTag.id));
-    } catch (error) {
-      if (!mounted) return;
-      await McFeedback.showError(
-        context,
-        message: extractErrorFromException(error),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _isLoadingTags = false);
-      }
-    }
+    return [const HomeTab.latest(), const HomeTab.hot(), ...tagTabs];
   }
 
   @override
   Widget build(BuildContext context) {
-    final feedAsync = ref.watch(homeFeedProvider);
+    ref.listen<HomeTabState>(homeTabControllerProvider, (previous, next) {
+      if (previous?.selected.key != next.selected.key) {
+        _handleSelectionChanged(next.selected);
+      }
+    });
+    ref.listen<NavigationRefreshEvent?>(navigationRefreshTargetProvider, (
+      previous,
+      next,
+    ) {
+      if (next != null &&
+          next.index == 0 &&
+          next.sequence != previous?.sequence) {
+        unawaited(_refreshActiveTab());
+      }
+    });
+
+    final l10n = AppLocalizations.of(context);
+    final selection = ref.watch(homeTabControllerProvider);
+    final selected = selection.selected;
+    final tagsAsync = ref.watch(postTagsProvider);
+    final tabs = _buildTabs(
+      tagsAsync.asData?.value ?? const <PostTagDto>[],
+      selection,
+    );
     final authState = ref.watch(authControllerProvider).asData?.value;
     final isAuthenticated = authState?.status == AuthStatus.authenticated;
 
     return CupertinoPageScaffold(
       backgroundColor: context.mc.background,
-      child: feedAsync.when(
-        data: (state) => CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
-          ),
-          slivers: [
-            CupertinoSliverNavigationBar(
-              largeTitle: Text(AppLocalizations.of(context).tabHome),
-              backgroundColor: context.mc.background.withValues(alpha: 0.94),
-              border: null,
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: _openTagPicker,
-                    child: _isLoadingTags
-                        ? const CupertinoActivityIndicator(radius: 10)
-                        : Icon(
-                            CupertinoIcons.tag_fill,
-                            size: 24,
-                            color: context.mc.primary,
-                          ),
-                  ),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      if (isAuthenticated) {
-                        context.push(AppRoutePaths.createPost);
-                      } else {
-                        context.go(AppRoutePaths.login);
-                      }
-                    },
-                    child: Icon(
-                      CupertinoIcons.plus_circle_fill,
-                      size: 28,
-                      color: context.mc.primary,
-                    ),
-                  ),
-                ],
+      child: CustomScrollView(
+        controller: _scrollController,
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        slivers: [
+          CupertinoSliverNavigationBar(
+            largeTitle: Text(l10n.tabHome),
+            backgroundColor: context.mc.background.withValues(alpha: 0.94),
+            border: null,
+            trailing: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                if (isAuthenticated) {
+                  context.push(AppRoutePaths.createPost);
+                } else {
+                  context.go(AppRoutePaths.login);
+                }
+              },
+              child: Icon(
+                CupertinoIcons.plus_circle_fill,
+                size: 28,
+                color: context.mc.primary,
               ),
             ),
-            CupertinoSliverRefreshControl(
-              onRefresh: ref.read(homeFeedProvider.notifier).refresh,
+          ),
+          CupertinoSliverRefreshControl(onRefresh: _refreshActiveTab),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: HomeTabBarHeaderDelegate(
+              backgroundColor: context.mc.background.withValues(alpha: 0.98),
+              child: HomeTabBar(
+                key: const ValueKey('home-tab-bar'),
+                tabs: tabs,
+                selectedKey: selected.key,
+                isLoadingTags: tagsAsync.isLoading && !tagsAsync.hasValue,
+                hasTagError: tagsAsync.hasError,
+                onRetryTags: () => ref.invalidate(postTagsProvider),
+                onSelected: (tab) =>
+                    ref.read(homeTabControllerProvider.notifier).select(tab),
+              ),
             ),
+          ),
+          if (!selected.isHot) ...[
             SliverToBoxAdapter(
               child: AppResponsiveCenter(
                 padding: AppResponsive.sliverPagePadding(
@@ -201,141 +273,221 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: CupertinoSearchTextField(
                   key: const ValueKey('home-responsive-search-field'),
                   controller: _searchController,
-                  placeholder: AppLocalizations.of(context)
-                      .homeSearchPlaceholder,
+                  placeholder: selected.isTag
+                      ? l10n.tagSearchPlaceholder
+                      : l10n.homeSearchPlaceholder,
                   borderRadius: BorderRadius.circular(McRadii.md),
                   backgroundColor: context.mc.secondary,
-                  onSubmitted: (value) =>
-                      ref.read(homeFeedProvider.notifier).search(value),
-                  onChanged: (value) {
-                    if (value.trim().isEmpty && state.keyword.isNotEmpty) {
-                      ref.read(homeFeedProvider.notifier).clearSearch();
-                    }
-                  },
+                  onSubmitted: _submitSearch,
+                  onChanged: _handleSearchChanged,
                 ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: AppResponsiveCenter(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: _SearchLoadingIndicator(
-                  isVisible: state.isRefreshing,
-                  keyword: state.keyword,
-                ),
-              ),
-            ),
-            AppResponsiveSliverPadding(
-              child: _PostListSection(
-                posts: state.posts,
-                isLoadingMore: state.isLoadingMore,
-                isRefreshing: state.isRefreshing,
-                keyword: state.keyword,
               ),
             ),
           ],
+          ..._buildFeedSlivers(context, selected),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildFeedSlivers(BuildContext context, HomeTab selected) {
+    switch (selected.kind) {
+      case HomeTabKind.latest:
+        final feedAsync = ref.watch(homeFeedProvider);
+        return feedAsync.when(
+          data: (state) => _buildPostListSlivers(
+            context,
+            state: state,
+            isTagTab: false,
+            emptyIcon: state.keyword.isEmpty
+                ? CupertinoIcons.news
+                : CupertinoIcons.search,
+            emptyTitle: state.keyword.isEmpty
+                ? AppLocalizations.of(context).homeEmpty
+                : AppLocalizations.of(context).homeNoSearchResults,
+            emptyDescription: state.keyword.isEmpty
+                ? AppLocalizations.of(context).waitFirstPoster
+                : AppLocalizations.of(context).tryDifferentKeyword,
+          ),
+          loading: () => [_loadingSliver()],
+          error: (error, _) => [
+            _errorSliver(
+              context,
+              message: extractErrorFromException(error),
+              onRetry: () => ref.read(homeFeedProvider.notifier).refresh(),
+            ),
+          ],
+        );
+
+      case HomeTabKind.hot:
+        final feedAsync = ref.watch(hotFeedProvider);
+        return feedAsync.when(
+          data: (state) => state.posts.isEmpty
+              ? [
+                  _emptySliver(
+                    icon: CupertinoIcons.flame,
+                    title: AppLocalizations.of(context).hotListEmpty,
+                    description: AppLocalizations.of(context).hotListEmptyDesc,
+                  ),
+                ]
+              : [
+                  AppResponsiveSliverPadding(
+                    child: HotPostList(posts: state.posts),
+                  ),
+                ],
+          loading: () => [_loadingSliver()],
+          error: (error, _) => [
+            _errorSliver(
+              context,
+              message: extractErrorFromException(error),
+              onRetry: () => ref.read(hotFeedProvider.notifier).refresh(),
+            ),
+          ],
+        );
+
+      case HomeTabKind.tag:
+        final tagId = selected.tagId;
+        if (tagId == null) {
+          return [
+            _emptySliver(
+              icon: CupertinoIcons.tag,
+              title: AppLocalizations.of(context).postTagEmpty,
+              description: AppLocalizations.of(context).tagNoPostsDesc,
+            ),
+          ];
+        }
+        final feedAsync = ref.watch(tagFeedProvider(tagId));
+        return feedAsync.when(
+          data: (state) => _buildPostListSlivers(
+            context,
+            state: state,
+            isTagTab: true,
+            emptyIcon: state.keyword.isEmpty
+                ? CupertinoIcons.tag
+                : CupertinoIcons.search,
+            emptyTitle: state.keyword.isEmpty
+                ? AppLocalizations.of(context).postTagEmpty
+                : AppLocalizations.of(context).homeNoSearchResults,
+            emptyDescription: state.keyword.isEmpty
+                ? AppLocalizations.of(context).tagNoPostsDesc
+                : AppLocalizations.of(context).tagNoSearchResultsDesc,
+          ),
+          loading: () => [_loadingSliver()],
+          error: (error, _) => [
+            _errorSliver(
+              context,
+              message: extractErrorFromException(error),
+              onRetry: () =>
+                  ref.read(tagFeedProvider(tagId).notifier).refresh(),
+            ),
+          ],
+        );
+    }
+  }
+
+  List<Widget> _buildPostListSlivers(
+    BuildContext context, {
+    required HomeFeedState state,
+    required bool isTagTab,
+    required IconData emptyIcon,
+    required String emptyTitle,
+    required String emptyDescription,
+  }) {
+    final l10n = AppLocalizations.of(context);
+
+    if (state.posts.isEmpty && state.isRefreshing) {
+      return [_loadingSliver()];
+    }
+
+    if (state.posts.isEmpty) {
+      return [
+        _emptySliver(
+          icon: emptyIcon,
+          title: emptyTitle,
+          description: emptyDescription,
         ),
-        loading: () => const _FeedLoadingView(),
-        error: (error, _) => _FeedErrorView(
-          message: extractErrorFromException(error),
-          onRetry: () => ref.read(homeFeedProvider.notifier).refresh(),
+      ];
+    }
+
+    return [
+      SliverToBoxAdapter(
+        child: AppResponsiveCenter(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          child: _SearchLoadingIndicator(
+            isVisible: state.isRefreshing,
+            label: state.keyword.isEmpty
+                ? (isTagTab ? l10n.tagRefreshingPosts : l10n.refreshingPosts)
+                : (isTagTab ? l10n.tagSearching : l10n.searching),
+          ),
+        ),
+      ),
+      AppResponsiveSliverPadding(
+        child: PostFeedList(
+          posts: state.posts,
+          isLoadingMore: state.isLoadingMore,
+          keyPrefix: isTagTab ? 'tag-feed' : 'home-feed',
+        ),
+      ),
+    ];
+  }
+
+  Widget _loadingSliver() {
+    return const SliverFillRemaining(
+      hasScrollBody: false,
+      child: Center(child: CupertinoActivityIndicator(radius: 14)),
+    );
+  }
+
+  Widget _emptySliver({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: McEmpty.placeholder(
+            icon: icon,
+            title: title,
+            description: description,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _errorSliver(
+    BuildContext context, {
+    required String message,
+    required Future<void> Function() onRetry,
+  }) {
+    return SliverFillRemaining(
+      hasScrollBody: false,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: McEmpty.placeholder(
+            icon: CupertinoIcons.exclamationmark_triangle,
+            title: AppLocalizations.of(context).loadingFailed,
+            description: message,
+            action: McButton.primary(
+              onPressed: onRetry,
+              child: Text(AppLocalizations.of(context).retry),
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-class _PostListSection extends StatelessWidget {
-  const _PostListSection({
-    required this.posts,
-    required this.isLoadingMore,
-    required this.isRefreshing,
-    required this.keyword,
-  });
-
-  final List<PostDto> posts;
-  final bool isLoadingMore;
-  final bool isRefreshing;
-  final String keyword;
-
-  @override
-  Widget build(BuildContext context) {
-    final columnCount = AppResponsive.listColumnCount(context);
-
-    if (posts.isEmpty && isRefreshing) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 40),
-        child: Center(child: CupertinoActivityIndicator(radius: 14)),
-      );
-    }
-
-    if (posts.isEmpty) {
-      return McEmpty.placeholder(
-        icon: keyword.isEmpty ? CupertinoIcons.news : CupertinoIcons.search,
-        title: keyword.isEmpty
-            ? AppLocalizations.of(context).homeEmpty
-            : AppLocalizations.of(context).homeNoSearchResults,
-        description: keyword.isEmpty
-            ? AppLocalizations.of(context).waitFirstPoster
-            : AppLocalizations.of(context).tryDifferentKeyword,
-      );
-    }
-
-    if (columnCount == 1) {
-      return Column(
-        key: const ValueKey('home-feed-columns-1'),
-        children: [
-          for (final post in posts)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: PostCard(post: post),
-            ),
-          if (isLoadingMore)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: CupertinoActivityIndicator()),
-            ),
-        ],
-      );
-    }
-
-    return Column(
-      key: const ValueKey('home-feed-columns-2'),
-      children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            const spacing = 16.0;
-            final itemWidth = (constraints.maxWidth - spacing) / 2;
-            return Wrap(
-              spacing: spacing,
-              runSpacing: spacing,
-              children: [
-                for (final post in posts)
-                  SizedBox(
-                    width: itemWidth,
-                    child: PostCard(post: post),
-                  ),
-              ],
-            );
-          },
-        ),
-        if (isLoadingMore)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Center(child: CupertinoActivityIndicator()),
-          ),
-      ],
-    );
-  }
-}
-
 class _SearchLoadingIndicator extends StatelessWidget {
-  const _SearchLoadingIndicator({
-    required this.isVisible,
-    required this.keyword,
-  });
+  const _SearchLoadingIndicator({required this.isVisible, required this.label});
 
   final bool isVisible;
-  final String keyword;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -348,47 +500,8 @@ class _SearchLoadingIndicator extends StatelessWidget {
       children: [
         const CupertinoActivityIndicator(radius: 8),
         const SizedBox(width: 8),
-        Text(
-          keyword.isEmpty
-              ? AppLocalizations.of(context).refreshingPosts
-              : AppLocalizations.of(context).searching,
-          style: context.mc.textLabel,
-        ),
+        Text(label, style: context.mc.textLabel),
       ],
-    );
-  }
-}
-
-class _FeedLoadingView extends StatelessWidget {
-  const _FeedLoadingView();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: CupertinoActivityIndicator(radius: 14));
-  }
-}
-
-class _FeedErrorView extends StatelessWidget {
-  const _FeedErrorView({required this.message, required this.onRetry});
-
-  final String message;
-  final Future<void> Function() onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: McEmpty.placeholder(
-          icon: CupertinoIcons.exclamationmark_triangle,
-          title: AppLocalizations.of(context).loadingFailed,
-          description: message,
-          action: McButton.primary(
-            onPressed: onRetry,
-            child: Text(AppLocalizations.of(context).retry),
-          ),
-        ),
-      ),
     );
   }
 }

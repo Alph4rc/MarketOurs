@@ -64,11 +64,7 @@ class _MainShellState extends ConsumerState<MainShell>
     // Branches are kept alive by StatefulShellRoute, so explicitly signal
     // the selected screen to reload its data when it becomes visible again.
     ref.read(navigationRefreshTargetProvider.notifier).setTarget(index);
-    if (index == 0) {
-      unawaited(ref.read(homeFeedProvider.notifier).refresh());
-    } else if (index == 2) {
-      unawaited(ref.read(hotFeedProvider.notifier).refresh());
-    } else if (index == 3) {
+    if (index == 2) {
       unawaited(ref.read(unreadNotificationCountProvider.notifier).refresh());
     }
   }
@@ -84,7 +80,7 @@ class _MainShellState extends ConsumerState<MainShell>
     }
 
     _lastExitAttemptAt = now;
-    unawaited(ref.read(homeFeedProvider.notifier).refresh());
+    ref.read(navigationRefreshTargetProvider.notifier).setTarget(0);
     unawaited(
       McFeedback.showInfo(
         context,
@@ -136,12 +132,12 @@ class _MainShellState extends ConsumerState<MainShell>
                           icon: _navigationIcon(
                             context,
                             entry.$2.icon,
-                            hasUnread: entry.$1 == 3 && unreadCount > 0,
+                            hasUnread: entry.$1 == 2 && unreadCount > 0,
                           ),
                           activeIcon: _navigationIcon(
                             context,
                             entry.$2.activeIcon,
-                            hasUnread: entry.$1 == 3 && unreadCount > 0,
+                            hasUnread: entry.$1 == 2 && unreadCount > 0,
                           ),
                           label: entry.$2.label,
                         ),
@@ -209,7 +205,7 @@ class _TabletSideNavigation extends StatelessWidget {
                 _TabletSideNavigationItem(
                   item: entry.$2,
                   isSelected: entry.$1 == currentIndex,
-                  hasUnread: entry.$1 == 3 && hasUnreadNotifications,
+                  hasUnread: entry.$1 == 2 && hasUnreadNotifications,
                   onPressed: () => onTap(entry.$1),
                 ),
             ],
@@ -340,11 +336,6 @@ List<_MainNavigationItem> _navigationItems(BuildContext context) {
       icon: CupertinoIcons.book,
       activeIcon: CupertinoIcons.book_fill,
       label: l10n.tabTeacherComments,
-    ),
-    _MainNavigationItem(
-      icon: CupertinoIcons.flame,
-      activeIcon: CupertinoIcons.flame_fill,
-      label: l10n.tabHot,
     ),
     _MainNavigationItem(
       icon: CupertinoIcons.bell,

@@ -9,13 +9,18 @@ import 'package:mobile_app/models/auth_session.dart';
 import 'package:mobile_app/models/post.dart';
 import 'package:mobile_app/models/user.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
+import 'package:mobile_app/providers/home_tab_provider.dart';
 import 'package:mobile_app/providers/post_feed_provider.dart';
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/services/auth_storage.dart';
 import 'package:mobile_app/ui/app_responsive.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  final binding = TestWidgetsFlutterBinding.ensureInitialized();
+  // Widget tests default to en_US, while this suite asserts the Chinese copy.
+  binding.platformDispatcher
+    ..localeTestValue = const Locale('zh')
+    ..localesTestValue = const [Locale('zh')];
 
   testWidgets('shows login when no local token exists', (tester) async {
     await tester.pumpWidget(
@@ -25,6 +30,7 @@ void main() {
           authServiceProvider.overrideWithValue(_FakeAuthService()),
           homeFeedProvider.overrideWith(() => _FakeHomeFeedNotifier()),
           hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
         ],
         child: const MarketOursApp(),
       ),
@@ -33,7 +39,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('登录'), findsWidgets);
-    expect(find.text('没有账号？去注册'), findsOneWidget);
+    expect(find.text('还没有账号？去注册'), findsOneWidget);
   });
 
   testWidgets('shows home when token restore succeeds', (tester) async {
@@ -50,6 +56,7 @@ void main() {
           ),
           homeFeedProvider.overrideWith(() => _FakeHomeFeedNotifier()),
           hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
         ],
         child: const MarketOursApp(),
       ),
@@ -82,6 +89,7 @@ void main() {
           ),
           homeFeedProvider.overrideWith(() => _FakeHomeFeedNotifier()),
           hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
         ],
         child: const MarketOursApp(),
       ),
@@ -118,6 +126,7 @@ void main() {
           ),
           homeFeedProvider.overrideWith(() => _FakeHomeFeedNotifier()),
           hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
         ],
         child: const MarketOursApp(),
       ),
@@ -131,13 +140,114 @@ void main() {
 
     expect(sideNavigation, findsOneWidget);
     expect(find.byType(CupertinoTabBar), findsNothing);
-
-    await tester.tap(
+    expect(
       find.descendant(of: sideNavigation, matching: find.text('热榜')),
+      findsNothing,
     );
+
+    // 热榜 is now a top tab on the home page instead of a bottom navigation
+    // destination.
+    await tester.tap(find.byKey(const ValueKey('home-tab-hot')));
     await tester.pumpAndSettle();
 
     expect(find.text('热榜暂时为空'), findsOneWidget);
+  });
+
+  testWidgets('renders tag tabs and switches between home tabs', (
+    tester,
+  ) async {
+    final storage = _TestAuthStorage(
+      session: AuthSession(accessToken: 'access', refreshToken: 'refresh'),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStorageProvider.overrideWithValue(storage),
+          authServiceProvider.overrideWithValue(
+            _FakeAuthService(user: _demoUser),
+          ),
+          homeFeedProvider.overrideWith(() => _FakeHomeFeedNotifier()),
+          hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          tagFeedProvider.overrideWith2((tagId) => _FakeTagFeedNotifier()),
+          postTagsProvider.overrideWith(
+            (ref) async => [
+              PostTagDto(id: 'tag-1', name: '数码', isActive: true),
+            ],
+          ),
+        ],
+        child: const MarketOursApp(),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('home-tab-latest')), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-tab-hot')), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-tab-tag:tag-1')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('home-tab-hot')));
+    await tester.pumpAndSettle();
+    expect(find.text('热榜暂时为空'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('home-responsive-search-field')),
+      findsNothing,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('home-tab-tag:tag-1')));
+    await tester.pumpAndSettle();
+    expect(find.text('这个标签下还没有帖子'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('home-responsive-search-field')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const ValueKey('home-tab-latest')));
+    await tester.pumpAndSettle();
+    expect(find.text('还没有帖子'), findsOneWidget);
+  });
+
+  testWidgets('pins home tab bar under the navigation bar while scrolling', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(390, 844)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final storage = _TestAuthStorage(
+      session: AuthSession(accessToken: 'access', refreshToken: 'refresh'),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authStorageProvider.overrideWithValue(storage),
+          authServiceProvider.overrideWithValue(
+            _FakeAuthService(user: _demoUser),
+          ),
+          homeFeedProvider.overrideWith(
+            () => _FakeHomeFeedNotifier(posts: _scrollTestPosts),
+          ),
+          hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
+        ],
+        child: const MarketOursApp(),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    final tabBar = find.byKey(const ValueKey('home-tab-bar'));
+    expect(tabBar, findsOneWidget);
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+    await tester.pumpAndSettle();
+
+    // The collapsed Cupertino navigation bar is 44 logical pixels tall, and
+    // the pinned tab bar must sit right below it instead of overlapping it.
+    expect(tester.getTopLeft(tabBar).dy, closeTo(44, 1));
   });
 
   testWidgets('uses two column home feed on desktop width', (tester) async {
@@ -162,6 +272,7 @@ void main() {
             () => _FakeHomeFeedNotifier(posts: _demoPosts),
           ),
           hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
         ],
         child: const MarketOursApp(),
       ),
@@ -189,6 +300,7 @@ void main() {
           ),
           homeFeedProvider.overrideWith(() => feed),
           hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
         ],
         child: const MarketOursApp(),
       ),
@@ -223,6 +335,7 @@ void main() {
           ),
           homeFeedProvider.overrideWith(() => feed),
           hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
         ],
         child: const MarketOursApp(),
       ),
@@ -234,7 +347,7 @@ void main() {
     await tester.pump();
 
     expect(feed.refreshCallCount, 1);
-    expect(find.text('再按一次退出光汇'), findsOneWidget);
+    expect(find.text('再按一次退出应用'), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
@@ -292,6 +405,7 @@ void main() {
           ),
           homeFeedProvider.overrideWith(() => _FakeHomeFeedNotifier()),
           hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
         ],
         child: const MarketOursApp(),
       ),
@@ -321,6 +435,7 @@ void main() {
           ),
           homeFeedProvider.overrideWith(() => _FakeHomeFeedNotifier()),
           hotFeedProvider.overrideWith(() => _FakeHotFeedNotifier()),
+          postTagsProvider.overrideWith((ref) async => const <PostTagDto>[]),
         ],
         child: const MarketOursApp(),
       ),
@@ -389,6 +504,26 @@ void main() {
     expect(authState?.status, AuthStatus.unauthenticated);
     expect(storage.session, isNull);
   });
+
+  test('selectTag keeps the dynamic tag tab when switching tabs', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    container
+        .read(homeTabControllerProvider.notifier)
+        .selectTag('tag-9', name: '旧物');
+
+    var state = container.read(homeTabControllerProvider);
+    expect(state.selected.kind, HomeTabKind.tag);
+    expect(state.selected.tagId, 'tag-9');
+    expect(state.selected.tagName, '旧物');
+    expect(state.extraTags.single.tagId, 'tag-9');
+
+    container.read(homeTabControllerProvider.notifier).selectHot();
+    state = container.read(homeTabControllerProvider);
+    expect(state.selected.kind, HomeTabKind.hot);
+    expect(state.extraTags.single.tagId, 'tag-9');
+  });
 }
 
 class _FakeAuthService extends AuthService {
@@ -444,7 +579,10 @@ class _FakeAuthService extends AuthService {
   }
 
   @override
-  Future<ApiResponse> sendRegistrationCode(String regToken, {String? captchaToken}) async {
+  Future<ApiResponse> sendRegistrationCode(
+    String regToken, {
+    String? captchaToken,
+  }) async {
     return ApiResponse(message: 'ok');
   }
 
@@ -528,6 +666,22 @@ class _FakeHotFeedNotifier extends HotFeedNotifier {
   }
 }
 
+class _FakeTagFeedNotifier extends TagFeedNotifier {
+  _FakeTagFeedNotifier() : super('');
+
+  @override
+  Future<HomeFeedState> build() async {
+    return const HomeFeedState(
+      posts: [],
+      pageIndex: 1,
+      hasNextPage: false,
+      isLoadingMore: false,
+      isRefreshing: false,
+      keyword: '',
+    );
+  }
+}
+
 class _TestAuthStorage implements AuthStorage {
   _TestAuthStorage({AuthSession? session}) : _session = session;
 
@@ -575,6 +729,21 @@ final _demoUser = UserDto(
   name: '测试用户',
   email: 'demo@example.com',
 );
+
+final _scrollTestPosts = [
+  for (var i = 0; i < 8; i++)
+    PostDto(
+      id: 'scroll-post-$i',
+      title: '测试帖子 $i',
+      content: '用于验证标签栏吸顶效果。',
+      userId: _demoUser.id,
+      author: UserSimpleDto(id: _demoUser.id, name: _demoUser.name),
+      likes: i,
+      dislikes: 0,
+      watch: i * 10,
+      commentsCount: i,
+    ),
+];
 
 final _demoPosts = [
   PostDto(

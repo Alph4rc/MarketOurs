@@ -94,6 +94,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get tabHot => '트렌드';
 
   @override
+  String get homeTabLatest => '최신';
+
+  @override
   String get tabNotifications => '알림';
 
   @override

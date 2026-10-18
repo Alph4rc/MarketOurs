@@ -94,6 +94,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tabHot => '热榜';
 
   @override
+  String get homeTabLatest => '最新';
+
+  @override
   String get tabNotifications => '通知';
 
   @override

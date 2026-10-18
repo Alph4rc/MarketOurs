@@ -10,11 +10,9 @@ import '../pages/auth/register_screen.dart';
 import '../pages/auth/register_verify_screen.dart';
 import '../pages/auth/reset_password_screen.dart';
 import '../pages/home/home_screen.dart';
-import '../pages/hot/hot_screen.dart';
 import '../pages/feedback/feedback_screen.dart';
 import '../pages/post/create_post_screen.dart';
 import '../pages/post/post_detail_screen.dart';
-import '../pages/tag/tag_screen.dart';
 import '../pages/teacher/teacher_comments_screen.dart';
 import '../pages/profile/binding_screen.dart';
 import '../pages/profile/following_screen.dart';
@@ -37,7 +35,6 @@ abstract final class AppRoutePaths {
   static const oauthWebView = '/oauth-webview';
   static const home = '/';
   static const notifications = '/notifications';
-  static const hot = '/hot';
   static const teacherComments = '/teacher-comments';
   static const profile = '/profile';
   static const feedback = '/feedback';
@@ -46,7 +43,6 @@ abstract final class AppRoutePaths {
   static const publicProfile = '/user/:userId';
   static const createPost = '/post/create';
   static const postDetail = '/post/:postId';
-  static const tag = '/tag/:tagId';
   static const terms = '/terms';
   static const privacy = '/privacy';
 }
@@ -61,7 +57,6 @@ abstract final class AppRouteNames {
   static const oauthWebView = 'oauth-webview';
   static const home = 'home';
   static const notifications = 'notifications';
-  static const hot = 'hot';
   static const teacherComments = 'teacher-comments';
   static const profile = 'profile';
   static const feedback = 'feedback';
@@ -70,7 +65,6 @@ abstract final class AppRouteNames {
   static const publicProfile = 'public-profile';
   static const createPost = 'create-post';
   static const postDetail = 'post-detail';
-  static const tag = 'tag';
   static const terms = 'terms';
   static const privacy = 'privacy';
 }
@@ -78,7 +72,6 @@ abstract final class AppRouteNames {
 abstract final class AppRouteParams {
   static const postId = 'postId';
   static const userId = 'userId';
-  static const tagId = 'tagId';
 }
 
 String buildPostDetailLocation(String postId) {
@@ -87,10 +80,6 @@ String buildPostDetailLocation(String postId) {
 
 String buildPublicProfileLocation(String userId) {
   return '/user/$userId';
-}
-
-String buildTagLocation(String tagId) {
-  return '/tag/$tagId';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -222,15 +211,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutePaths.hot,
-                name: AppRouteNames.hot,
-                builder: (context, state) => const HotScreen(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
                 path: AppRoutePaths.notifications,
                 name: AppRouteNames.notifications,
                 builder: (context, state) => NotificationScreen(
@@ -296,17 +276,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: AppRoutePaths.tag,
-        name: AppRouteNames.tag,
-        builder: (context, state) {
-          final tagId = state.pathParameters[AppRouteParams.tagId];
-          if (tagId == null || tagId.isEmpty) {
-            throw StateError('Tag page route missing tagId');
-          }
-          return TagScreen(tagId: tagId);
-        },
-      ),
-      GoRoute(
         path: AppRoutePaths.terms,
         name: AppRouteNames.terms,
         builder: (context, state) => const TermsScreen(),
@@ -342,9 +311,6 @@ bool _isPublicRoute(String path) {
   // Public user profiles (e.g. /user/abc123) are publicly viewable.
   final publicProfilePattern = RegExp(r'^/user/[^/]+$');
   if (publicProfilePattern.hasMatch(path)) return true;
-
-  final tagPattern = RegExp(r'^/tag/[^/]+$');
-  if (tagPattern.hasMatch(path)) return true;
 
   return false;
 }
