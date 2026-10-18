@@ -1,13 +1,17 @@
+import 'dart:math' as math;
+
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
-/// PageView that sizes itself to the natural height of the active page.
+/// PageView that sizes itself to the natural height of its pages.
 ///
-/// PageView forces its children to match the viewport size, so this widget
-/// also lays out an offstage copy of the active page (at the same width but
-/// with unbounded height) and reports that height back to constrain the
-/// PageView. This lets it live inside a page-level scroll view.
+/// PageView forces every laid-out page to match the viewport size, and it lays
+/// out neighbouring pages while swiping. This widget therefore lays out an
+/// offstage copy of every page (at the same width but with unbounded height)
+/// and constrains the PageView to the tallest of them — otherwise switching
+/// back from a short tab to a tall one would overflow it. This lets the
+/// widget live inside a page-level scroll view.
 class AutoSizedPageView extends StatefulWidget {
   const AutoSizedPageView({
     super.key,
@@ -25,19 +29,27 @@ class AutoSizedPageView extends StatefulWidget {
 }
 
 class _AutoSizedPageViewState extends State<AutoSizedPageView> {
-  double _height = 0;
-  late int _index;
+  final Map<int, double> _pageHeights = <int, double>{};
+
+  double get _height {
+    if (_pageHeights.isEmpty) return 0;
+    return _pageHeights.values.reduce(math.max);
+  }
 
   @override
-  void initState() {
-    super.initState();
-    _index = widget.controller.initialPage.clamp(0, widget.children.length - 1);
+  void didUpdateWidget(covariant AutoSizedPageView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.children.length < oldWidget.children.length) {
+      _pageHeights.removeWhere((index, _) => index >= widget.children.length);
+    }
   }
 
-  void _handlePageChanged(int index) {
-    setState(() => _index = index);
-    widget.onPageChanged?.call(index);
+  void _setPageHeight(int index, double height) {
+    if (!mounted || _pageHeights[index] == height) return;
+    setState(() => _pageHeights[index] = height);
   }
+
+  void _handlePageChanged(int index) => widget.onPageChanged?.call(index);
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +61,16 @@ class _AutoSizedPageViewState extends State<AutoSizedPageView> {
               offstage: true,
               child: SizedBox(
                 width: constraints.maxWidth,
-                child: _MeasureSize(
-                  onChange: (size) {
-                    if (mounted && size.height != _height) {
-                      setState(() => _height = size.height);
-                    }
-                  },
-                  child: widget.children[_index],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < widget.children.length; i++)
+                      _MeasureSize(
+                        onChange: (size) => _setPageHeight(i, size.height),
+                        child: widget.children[i],
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -64,7 +79,20 @@ class _AutoSizedPageViewState extends State<AutoSizedPageView> {
               child: PageView(
                 controller: widget.controller,
                 onPageChanged: _handlePageChanged,
-                children: widget.children,
+                children: [
+                  for (final child in widget.children)
+                    // Pages lay out at their natural height even while the
+                    // measured height is still catching up, so a page that
+                    // just grew cannot overflow the viewport for a frame.
+                    ClipRect(
+                      child: OverflowBox(
+                        alignment: Alignment.topCenter,
+                        minHeight: 0,
+                        maxHeight: double.infinity,
+                        child: child,
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
