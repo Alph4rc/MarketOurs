@@ -842,10 +842,10 @@ packages:
     dependency: "direct main"
     description:
       name: jpush_flutter
-      sha256: "02046086774b95e662a9cbc52aafbea3bc3ca25868f57e2f087db750e28c17eb"
+      sha256: ff08d5cb06788756ef1704a4b7f70e740e5bb7097a73c2e67881f34c56c9660c
       url: "https://pub.dev"
     source: hosted
-    version: "3.4.6"
+    version: "3.5.8"
   json_annotation:
     dependency: "direct main"
     description:
