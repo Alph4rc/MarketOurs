@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:material_ui/material_ui.dart' show Colors, Material;
 import 'package:image_picker/image_picker.dart';
 
-import '../components/app_network_image.dart';
-import '../ui/app_theme.dart';
+import 'app_network_image.dart';
 
 /// Represents a single image in the editable list, which may be either
 /// an already-uploaded remote URL or a locally picked file.
@@ -174,11 +174,11 @@ class _ReorderableImageGridState extends State<_ReorderableImageGrid> {
           size: widget.tileSize,
           image: entry.isExisting
               ? AppNetworkImage(
-                url: entry.displayUrl,
-                width: widget.tileSize,
-                height: widget.tileSize,
-                fit: BoxFit.cover,
-              )
+                  url: entry.displayUrl,
+                  width: widget.tileSize,
+                  height: widget.tileSize,
+                  fit: BoxFit.cover,
+                )
               : Image.file(File(entry.localFile!.path), fit: BoxFit.cover),
           onRemove: widget.onRemoveEntry == null
               ? null
@@ -222,9 +222,9 @@ class _ReorderableImageGridState extends State<_ReorderableImageGrid> {
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppRadii.md),
+                  borderRadius: BorderRadius.circular(McRadii.md),
                   border: isHighlighted
-                      ? Border.all(color: AppColors.primary, width: 2)
+                      ? Border.all(color: context.mc.primary, width: 2)
                       : null,
                 ),
                 child: tile,
@@ -254,7 +254,7 @@ class _EditableImageTile extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadii.md),
+          borderRadius: BorderRadius.circular(McRadii.md),
           child: SizedBox(width: size, height: size, child: image),
         ),
         // Remove button — top-right corner
@@ -265,9 +265,9 @@ class _EditableImageTile extends StatelessWidget {
             child: CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: onRemove,
-              child: const Icon(
+              child: Icon(
                 CupertinoIcons.xmark_circle_fill,
-                color: AppColors.destructive,
+                color: context.mc.destructive,
                 size: 24,
               ),
             ),

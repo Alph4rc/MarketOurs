@@ -1,4 +1,5 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,8 +10,6 @@ import '../../providers/post_feed_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/error_messages.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 
 class HotScreen extends ConsumerWidget {
   const HotScreen({super.key});
@@ -22,7 +21,7 @@ class HotScreen extends ConsumerWidget {
     final isAuthenticated = authState?.status == AuthStatus.authenticated;
 
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.mc.background,
       child: hotFeedAsync.when(
         data: (state) => CustomScrollView(
           physics: const BouncingScrollPhysics(
@@ -31,10 +30,7 @@ class HotScreen extends ConsumerWidget {
           slivers: [
             CupertinoSliverNavigationBar(
               largeTitle: Text(AppLocalizations.of(context).tabHot),
-              backgroundColor: CupertinoDynamicColor.resolve(
-                AppColors.background,
-                context,
-              ).withValues(alpha: 0.94),
+              backgroundColor: context.mc.background.withValues(alpha: 0.94),
               border: null,
               trailing: CupertinoButton(
                 padding: EdgeInsets.zero,
@@ -45,10 +41,10 @@ class HotScreen extends ConsumerWidget {
                     context.go(AppRoutePaths.login);
                   }
                 },
-                child: const Icon(
+                child: Icon(
                   CupertinoIcons.plus_circle_fill,
                   size: 28,
-                  color: AppColors.primary,
+                  color: context.mc.primary,
                 ),
               ),
             ),
@@ -63,11 +59,11 @@ class HotScreen extends ConsumerWidget {
         error: (error, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: AppEmptyState(
+            child: McEmpty.placeholder(
               icon: CupertinoIcons.exclamationmark_triangle,
               title: AppLocalizations.of(context).loadingFailed,
               description: extractErrorFromException(error),
-              action: AppPrimaryButton(
+              action: McButton.primary(
                 onPressed: () => ref.read(hotFeedProvider.notifier).refresh(),
                 child: Text(AppLocalizations.of(context).retry),
               ),
@@ -87,7 +83,7 @@ class _HotPostList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (posts.isEmpty) {
-      return AppEmptyState(
+      return McEmpty.placeholder(
         icon: CupertinoIcons.flame,
         title: AppLocalizations.of(context).hotListEmpty,
         description: AppLocalizations.of(context).hotListEmptyDesc,
@@ -142,12 +138,11 @@ class _HotPostCard extends StatelessWidget {
         ? post.title!.trim()
         : l10n.postUnnamed;
     final isTop3 = rank <= 3;
-    final rankColor = isTop3 ? AppColors.hot : AppColors.mutedForeground;
+    final rankColor = isTop3 ? context.mc.hot : context.mc.secondaryLabel;
     final hot = post.heat ?? 0;
 
-    return AppTappableCard(
+    return McCard.elevated(
       padding: EdgeInsets.zero,
-      radius: AppRadii.lg,
       onPressed: () => context.push(buildPostDetailLocation(post.id)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -163,8 +158,8 @@ class _HotPostCard extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: isTop3
-                        ? AppColors.hot.withValues(alpha: 0.12)
-                        : AppColors.muted,
+                        ? context.mc.hot.withValues(alpha: 0.12)
+                        : context.mc.muted,
                     shape: BoxShape.circle,
                   ),
                   child: Text(
@@ -180,9 +175,7 @@ class _HotPostCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: AppTextStyles.sectionTitle(
-                      context,
-                    ).copyWith(fontSize: 20),
+                    style: context.mc.textSection.copyWith(fontSize: 20),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -210,15 +203,15 @@ class _HotPostCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   'IP属地: ${post.ipLocation?.isNotEmpty == true ? post.ipLocation! : '未知'}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.mutedForeground,
+                    color: context.mc.secondaryLabel,
                   ),
                 ),
                 const Spacer(),
-                const Icon(
+                Icon(
                   CupertinoIcons.chevron_right,
-                  color: AppColors.mutedForeground,
+                  color: context.mc.secondaryLabel,
                   size: 14,
                 ),
               ],

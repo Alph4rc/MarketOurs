@@ -1,10 +1,10 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../components/app_avatar.dart';
 import '../../../components/app_network_image.dart';
 import '../../../models/comment.dart';
-import '../../../ui/app_theme.dart';
-import '../../../ui/app_widgets.dart';
 import '../../../utils/date_formatters.dart';
 import '../image_viewer_screen.dart';
 
@@ -75,10 +75,7 @@ class PostDetailCommentThread extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 left: BorderSide(
-                  color: CupertinoDynamicColor.resolve(
-                    AppColors.border,
-                    context,
-                  ).withValues(alpha: 0.3),
+                  color: context.mc.border.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -118,13 +115,7 @@ class PostDetailCommentThread extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 16),
-        Container(
-          height: 1,
-          color: CupertinoDynamicColor.resolve(
-            AppColors.border,
-            context,
-          ).withValues(alpha: 0.3),
-        ),
+        Container(height: 1, color: context.mc.border.withValues(alpha: 0.3)),
         const SizedBox(height: 16),
       ],
     );
@@ -229,7 +220,7 @@ class _CommentCard extends StatelessWidget {
                           'IP属地: ${comment.ipLocation?.isNotEmpty == true ? comment.ipLocation! : '未知'}',
                           style: TextStyle(
                             fontSize: isReply ? 9 : 10,
-                            color: AppColors.mutedForeground,
+                            color: context.mc.secondaryLabel,
                           ),
                         ),
                       ],
@@ -243,10 +234,7 @@ class _CommentCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
-                        color: CupertinoDynamicColor.resolve(
-                          AppColors.mutedForeground,
-                          context,
-                        ),
+                        color: context.mc.secondaryLabel,
                       ),
                     ),
                   ],
@@ -259,7 +247,7 @@ class _CommentCard extends StatelessWidget {
                 label: '${comment.likes ?? 0}',
                 onTap: onLike,
                 active: isLiked,
-                activeColor: const Color(0xFFFF5A5F),
+                activeColor: context.mc.pink,
               ),
             ],
           ),
@@ -274,9 +262,9 @@ class _CommentCard extends StatelessWidget {
                       if (replyToName != null && replyToName!.isNotEmpty)
                         TextSpan(
                           text: '@$replyToName ',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
+                            color: context.mc.primary,
                           ),
                         ),
                       TextSpan(text: comment.content ?? ''),
@@ -285,10 +273,7 @@ class _CommentCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     height: 1.5,
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.foreground,
-                      context,
-                    ),
+                    color: context.mc.foreground,
                   ),
                 ),
                 CommentImageGrid(images: comment.images ?? const []),
@@ -306,7 +291,7 @@ class _CommentCard extends StatelessWidget {
                       _TextAction(
                         label: AppLocalizations.of(context).deletePostAction,
                         onTap: onDelete!,
-                        activeColor: AppColors.destructive,
+                        activeColor: context.mc.destructive,
                         active: true,
                       ),
                       const SizedBox(width: 16),
@@ -315,7 +300,7 @@ class _CommentCard extends StatelessWidget {
                       _TextAction(
                         label: '举报',
                         onTap: onReport!,
-                        activeColor: AppColors.destructive,
+                        activeColor: context.mc.destructive,
                         active: true,
                       ),
                       const SizedBox(width: 16),
@@ -372,12 +357,9 @@ class CommentImageGrid extends StatelessWidget {
               child: Hero(
                 tag: 'image_${images[i]}',
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadii.md),
+                  borderRadius: BorderRadius.circular(McRadii.md),
                   child: ColoredBox(
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.secondary,
-                      context,
-                    ),
+                    color: context.mc.secondary,
                     child: AppNetworkImage(
                       url: images[i],
                       width: previewSize,
@@ -412,9 +394,8 @@ class _CommentActionIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = active
-        ? (activeColor ??
-              CupertinoDynamicColor.resolve(AppColors.primary, context))
-        : CupertinoDynamicColor.resolve(AppColors.mutedForeground, context);
+        ? (activeColor ?? context.mc.primary)
+        : context.mc.secondaryLabel;
 
     return CupertinoButton(
       padding: EdgeInsets.zero,
@@ -446,21 +427,18 @@ class _TextAction extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.active = false,
-    this.activeColor = AppColors.primary,
+    this.activeColor,
   });
 
   final String label;
   final VoidCallback onTap;
   final bool active;
-  final Color activeColor;
+  final Color? activeColor;
 
   @override
   Widget build(BuildContext context) {
-    final resolvedMuted = CupertinoDynamicColor.resolve(
-      AppColors.mutedForeground,
-      context,
-    );
-    final resolvedActive = CupertinoDynamicColor.resolve(activeColor, context);
+    final resolvedMuted = context.mc.secondaryLabel;
+    final resolvedActive = activeColor ?? context.mc.primary;
 
     return CupertinoButton(
       padding: EdgeInsets.zero,

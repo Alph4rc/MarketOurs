@@ -3,16 +3,13 @@ import 'dart:async';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../models/user.dart';
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/error_messages.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_fields.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 import '../../l10n/app_localizations.dart';
 
 class BindingScreen extends ConsumerWidget {
@@ -23,9 +20,9 @@ class BindingScreen extends ConsumerWidget {
     final authState = ref.watch(authControllerProvider).asData?.value;
     final user = authState?.user;
 
-    return AppPageScaffold(
+    return McPageScaffold(
       title: AppLocalizations.of(context).bindingTitle,
-      navigationBarStyle: AppNavigationBarStyle.compact,
+      navigationBarStyle: McNavigationBarStyle.compact,
       slivers: [
         CupertinoSliverRefreshControl(
           onRefresh: () =>
@@ -83,12 +80,11 @@ class _BindingSection extends StatelessWidget {
           padding: const EdgeInsets.only(left: 8, bottom: 12),
           child: Text(
             AppLocalizations.of(context).bindingSubtitle,
-            style: AppTextStyles.muted(context),
+            style: context.mc.textMuted,
           ),
         ),
-        AppTappableCard(
+        McCard.elevated(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          radius: AppRadii.lg,
           child: Column(
             children: [
               for (int i = 0; i < providers.length; i++) ...[
@@ -96,10 +92,7 @@ class _BindingSection extends StatelessWidget {
                   Container(
                     height: 1,
                     margin: const EdgeInsets.only(left: 44),
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.border,
-                      context,
-                    ).withValues(alpha: 0.3),
+                    color: context.mc.border.withValues(alpha: 0.3),
                   ),
                 _BindingRow(
                   provider: providers[i],
@@ -133,26 +126,26 @@ class _BindingSection extends StatelessWidget {
     final currentUser = provider.user;
     if (currentUser == null) {
       final l10n = AppLocalizations.of(context);
-      await AppFeedback.showError(context, message: l10n.postPleaseLogin);
+      await McFeedback.showError(context, message: l10n.postPleaseLogin);
       return;
     }
 
     if (!_hasText(currentUser.email) && !_hasText(currentUser.phone)) {
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: AppLocalizations.of(context).bindingFirstWarning,
       );
       return;
     }
 
-    final confirmed = await AppFeedback.confirm(
+    final confirmed = await McFeedback.confirm(
       context,
-      title: AppLocalizations.of(
-        context,
-      ).bindingUnbindCheckTitle(provider.name),
+      title: AppLocalizations.of(context)
+          .bindingUnbindCheckTitle(provider.name),
       message: AppLocalizations.of(context).bindingUnbindCheckDesc,
       confirmText: AppLocalizations.of(context).bindingContinue,
       destructive: true,
+      barrierDismissible: true,
     );
     if (confirmed != true || !context.mounted) return;
 
@@ -164,11 +157,10 @@ class _BindingSection extends StatelessWidget {
     );
 
     if (success == true && context.mounted) {
-      await AppFeedback.showSuccess(
+      await McFeedback.showSuccess(
         context,
-        message: AppLocalizations.of(
-          context,
-        ).bindingUnboundSuccess(provider.name),
+        message: AppLocalizations.of(context)
+            .bindingUnboundSuccess(provider.name),
       );
     }
   }
@@ -204,12 +196,12 @@ class _BindingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = ColorManager.generateSoftColor(
+    final color = McColorManager.generateSoftColor(
       provider.name,
       isDark: CupertinoTheme.of(context).brightness == Brightness.dark,
     );
-    return AppListTile(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+    return McListTile(
+      contentPadding: const EdgeInsets.symmetric(vertical: 12),
       leading: Icon(provider.icon, size: 20, color: color),
       title: Text(
         provider.name,
@@ -226,7 +218,7 @@ class _BindingRow extends StatelessWidget {
               child: Text(
                 AppLocalizations.of(context).bindingUnbind,
                 style: TextStyle(
-                  color: AppColors.destructive,
+                  color: context.mc.destructive,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
@@ -239,7 +231,7 @@ class _BindingRow extends StatelessWidget {
               child: Text(
                 AppLocalizations.of(context).bindingGoBind,
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: context.mc.primary,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                 ),
@@ -332,7 +324,7 @@ class _UnbindThirdPartyDialogState
       }
       _startCountdown();
       if (mounted) {
-        await AppFeedback.showSuccess(
+        await McFeedback.showSuccess(
           context,
           message: AppLocalizations.of(context).bindingCodeSent,
         );
@@ -412,7 +404,7 @@ class _UnbindThirdPartyDialogState
           children: [
             Text(
               AppLocalizations.of(context).bindingUnbindDesc,
-              style: AppTextStyles.muted(context),
+              style: context.mc.textMuted,
             ),
             const SizedBox(height: 14),
             if (_channels.length > 1)
@@ -441,21 +433,21 @@ class _UnbindThirdPartyDialogState
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(channel.icon, size: 16, color: AppColors.primary),
+                  Icon(channel.icon, size: 16, color: context.mc.primary),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       channel.destination,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.muted(context),
+                      style: context.mc.textMuted,
                     ),
                   ),
                 ],
               ),
             ],
             const SizedBox(height: 12),
-            AppTextField(
+            McField.text(
               controller: _codeController,
               placeholder: AppLocalizations.of(context).authCodePlaceholder,
               keyboardType: TextInputType.number,
@@ -473,8 +465,8 @@ class _UnbindThirdPartyDialogState
                       : _isSending
                       ? AppLocalizations.of(context).bindingSending
                       : AppLocalizations.of(context).bindingSendCode,
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  style: TextStyle(
+                    color: context.mc.primary,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -485,8 +477,8 @@ class _UnbindThirdPartyDialogState
               const SizedBox(height: 10),
               Text(
                 _errorMessage!,
-                style: const TextStyle(
-                  color: AppColors.destructive,
+                style: TextStyle(
+                  color: context.mc.destructive,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),

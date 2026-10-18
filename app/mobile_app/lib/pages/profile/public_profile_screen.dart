@@ -2,9 +2,11 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/widget_previews.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/components/post_card.dart';
-import 'package:mobile_app/ui/app_theme.dart';
 
+import '../../components/app_avatar.dart';
+import '../../components/auto_sized_page_view.dart';
 import '../../models/post.dart';
 import '../../models/user.dart';
 import '../../models/teacher_comment.dart';
@@ -18,7 +20,6 @@ import '../../components/report_sheet.dart';
 import '../../components/teacher_comment_actions.dart';
 import '../../models/report.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_widgets.dart';
 import '../../utils/date_formatters.dart';
 
 @Preview(name: 'Public Profile')
@@ -302,16 +303,16 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen> {
     final isMe = authState?.user?.id == widget.userId;
 
     if (_isLoading) {
-      return AppPageScaffold(
-        navigationBarStyle: AppNavigationBarStyle.compact,
+      return McPageScaffold(
+        navigationBarStyle: McNavigationBarStyle.compact,
         title: AppLocalizations.of(context).profilePublicProfile,
         child: const Center(child: CupertinoActivityIndicator()),
       );
     }
 
     if (_errorMessage != null || _profile == null) {
-      return AppPageScaffold(
-        navigationBarStyle: AppNavigationBarStyle.compact,
+      return McPageScaffold(
+        navigationBarStyle: McNavigationBarStyle.compact,
         title: AppLocalizations.of(context).profilePublicProfile,
         child: _ErrorState(
           message:
@@ -321,9 +322,9 @@ class _PublicProfileScreenState extends ConsumerState<PublicProfileScreen> {
       );
     }
 
-    return AppPageScaffold(
+    return McPageScaffold(
       title: AppLocalizations.of(context).profilePublicProfile,
-      navigationBarStyle: AppNavigationBarStyle.compact,
+      navigationBarStyle: McNavigationBarStyle.compact,
       scrollController: _scrollController,
       slivers: [
         CupertinoSliverRefreshControl(onRefresh: _load),
@@ -435,12 +436,12 @@ class _RecentPostsSection extends StatelessWidget {
         if (isMe) ...[
           Text(
             AppLocalizations.of(context).profileRecentPostsSubtitle,
-            style: TextStyle(color: CupertinoColors.systemGrey),
+            style: TextStyle(color: context.mc.secondaryLabel),
           ),
           const SizedBox(height: 12),
         ],
         if (posts.isEmpty)
-          AppSectionCard(
+          McCard.glass(
             child: Text(AppLocalizations.of(context).profileNoPublicPosts),
           )
         else
@@ -461,7 +462,7 @@ class _RecentPostsSection extends StatelessWidget {
             child: Center(
               child: Text(
                 AppLocalizations.of(context).profileReachedEnd,
-                style: TextStyle(color: CupertinoColors.systemGrey),
+                style: TextStyle(color: context.mc.secondaryLabel),
               ),
             ),
           ),
@@ -478,7 +479,7 @@ class _ProfileHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppSectionCard(
+    return McCard.glass(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,10 +493,7 @@ class _ProfileHero extends StatelessWidget {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w800,
-              color: CupertinoDynamicColor.resolve(
-                AppColors.foreground,
-                context,
-              ),
+              color: context.mc.foreground,
             ),
           ),
           const SizedBox(height: 8),
@@ -515,23 +513,14 @@ class _ProfileHero extends StatelessWidget {
             style: TextStyle(
               fontSize: 15,
               height: 1.5,
-              color: CupertinoDynamicColor.resolve(
-                AppColors.mutedForeground,
-                context,
-              ),
+              color: context.mc.secondaryLabel,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             '${AppLocalizations.of(context).profileJoinDate} '
             '${formatYmdDate(profile.createdAt).isEmpty ? AppLocalizations.of(context).profileUnknownDate : formatYmdDate(profile.createdAt)}',
-            style: TextStyle(
-              fontSize: 12,
-              color: CupertinoDynamicColor.resolve(
-                AppColors.mutedForeground,
-                context,
-              ),
-            ),
+            style: TextStyle(fontSize: 12, color: context.mc.secondaryLabel),
           ),
         ],
       ),
@@ -549,15 +538,10 @@ class _MetaChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: CupertinoDynamicColor.resolve(AppColors.secondary, context),
+        color: context.mc.secondary,
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: CupertinoDynamicColor.resolve(AppColors.foreground, context),
-        ),
-      ),
+      child: Text(label, style: TextStyle(color: context.mc.foreground)),
     );
   }
 }
@@ -576,7 +560,7 @@ class _FollowStats extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: AppSectionCard(
+          child: McCard.glass(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             child: Column(
               children: [
@@ -585,10 +569,7 @@ class _FollowStats extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.foreground,
-                      context,
-                    ),
+                    color: context.mc.foreground,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -596,10 +577,7 @@ class _FollowStats extends StatelessWidget {
                   AppLocalizations.of(context).profileFollowers,
                   style: TextStyle(
                     fontSize: 13,
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.mutedForeground,
-                      context,
-                    ),
+                    color: context.mc.secondaryLabel,
                   ),
                 ),
               ],
@@ -608,7 +586,7 @@ class _FollowStats extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: AppSectionCard(
+          child: McCard.glass(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             child: Column(
               children: [
@@ -617,10 +595,7 @@ class _FollowStats extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.foreground,
-                      context,
-                    ),
+                    color: context.mc.foreground,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -628,10 +603,7 @@ class _FollowStats extends StatelessWidget {
                   AppLocalizations.of(context).profileFollowing,
                   style: TextStyle(
                     fontSize: 13,
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.mutedForeground,
-                      context,
-                    ),
+                    color: context.mc.secondaryLabel,
                   ),
                 ),
               ],
@@ -667,9 +639,7 @@ class _FollowBlockButtons extends StatelessWidget {
         Expanded(
           child: CupertinoButton(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            color: isFollowing
-                ? AppColors.secondary
-                : CupertinoColors.activeBlue,
+            color: isFollowing ? context.mc.secondary : context.mc.primary,
             borderRadius: BorderRadius.circular(12),
             onPressed: isLoading || isBlocked ? null : onToggleFollow,
             child: Row(
@@ -681,7 +651,7 @@ class _FollowBlockButtons extends StatelessWidget {
                       : CupertinoIcons.person_badge_plus,
                   size: 18,
                   color: isFollowing
-                      ? AppColors.foreground
+                      ? context.mc.foreground
                       : CupertinoColors.white,
                 ),
                 const SizedBox(width: 6),
@@ -693,7 +663,7 @@ class _FollowBlockButtons extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: isFollowing
-                        ? AppColors.foreground
+                        ? context.mc.foreground
                         : CupertinoColors.white,
                   ),
                 ),
@@ -705,8 +675,8 @@ class _FollowBlockButtons extends StatelessWidget {
         CupertinoButton(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           color: isBlocked
-              ? CupertinoColors.systemRed.withValues(alpha: 0.15)
-              : AppColors.secondary,
+              ? context.mc.destructive.withValues(alpha: 0.15)
+              : context.mc.secondary,
           borderRadius: BorderRadius.circular(12),
           onPressed: isLoading ? null : onToggleBlock,
           child: Row(
@@ -718,8 +688,8 @@ class _FollowBlockButtons extends StatelessWidget {
                     : CupertinoIcons.hand_raised,
                 size: 18,
                 color: isBlocked
-                    ? CupertinoColors.systemRed
-                    : AppColors.mutedForeground,
+                    ? context.mc.destructive
+                    : context.mc.secondaryLabel,
               ),
               const SizedBox(width: 6),
               Text(
@@ -730,8 +700,8 @@ class _FollowBlockButtons extends StatelessWidget {
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: isBlocked
-                      ? CupertinoColors.systemRed
-                      : AppColors.mutedForeground,
+                      ? context.mc.destructive
+                      : context.mc.secondaryLabel,
                 ),
               ),
             ],
@@ -741,9 +711,9 @@ class _FollowBlockButtons extends StatelessWidget {
         CupertinoButton(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           onPressed: isLoading ? null : onReport,
-          child: const Icon(
+          child: Icon(
             CupertinoIcons.exclamationmark_triangle,
-            color: CupertinoColors.systemRed,
+            color: context.mc.destructive,
           ),
         ),
       ],
@@ -765,15 +735,15 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               CupertinoIcons.person_crop_circle_badge_exclam,
               size: 48,
-              color: CupertinoColors.systemGrey2,
+              color: context.mc.tertiaryLabel,
             ),
             const SizedBox(height: 12),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 12),
-            AppPrimaryButton(
+            McButton.primary(
               onPressed: onRetry,
               child: Text(AppLocalizations.of(context).reload),
             ),
@@ -807,13 +777,13 @@ class _TeacherCommentsSection extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
-            decoration: AppDecorations.card(context),
+            decoration: context.mc.cardDecoration(),
             child: Text(
               isMe
                   ? l10n.teacherCommentsMineEmpty
                   : l10n.teacherCommentsEmptyList,
               textAlign: TextAlign.center,
-              style: AppTextStyles.muted(context),
+              style: context.mc.textMuted,
             ),
           )
         else
@@ -884,7 +854,7 @@ class _TeacherCommentCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppDecorations.card(context),
+      decoration: context.mc.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -893,9 +863,10 @@ class _TeacherCommentCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${comment.teacherName} - ${comment.courseName}',
-                  style: AppTextStyles.sectionTitle(
-                    context,
-                  ).copyWith(fontSize: 17, height: 1.3),
+                  style: context.mc.textSection.copyWith(
+                    fontSize: 17,
+                    height: 1.3,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -910,17 +881,17 @@ class _TeacherCommentCard extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   minimumSize: Size.zero,
                   onPressed: () => _openActions(context),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.ellipsis,
                     size: 20,
-                    color: AppColors.mutedForeground,
+                    color: context.mc.secondaryLabel,
                   ),
                 ),
               ],
             ],
           ),
           const SizedBox(height: 8),
-          Text(commentText, style: AppTextStyles.body(context)),
+          Text(commentText, style: context.mc.textBody),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -928,7 +899,7 @@ class _TeacherCommentCard extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 formatRelativeDateTime(comment.createdOn, l10n),
-                style: AppTextStyles.label(context),
+                style: context.mc.textLabel,
               ),
             ],
           ),
@@ -945,15 +916,12 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = CupertinoDynamicColor.resolve(
-      AppColors.mutedForeground,
-      context,
-    );
+    final color = context.mc.secondaryLabel;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderRadius: BorderRadius.circular(McRadii.md),
       ),
       child: Text(
         label,

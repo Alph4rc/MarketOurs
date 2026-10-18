@@ -2,11 +2,11 @@ import 'dart:ui';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../components/editable_image_wrap.dart';
 import '../../../ui/app_responsive.dart';
-import '../../../ui/app_theme.dart';
 import '../../../utils/dto_validation.dart';
 
 const List<String> _commentComposerEmojis = <String>[
@@ -207,17 +207,9 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           decoration: BoxDecoration(
-            color: CupertinoDynamicColor.resolve(
-              AppColors.background,
-              context,
-            ).withValues(alpha: 0.88),
+            color: context.mc.background.withValues(alpha: 0.88),
             border: Border(
-              top: BorderSide(
-                color: CupertinoDynamicColor.resolve(
-                  AppColors.border,
-                  context,
-                ).withValues(alpha: 0.35),
-              ),
+              top: BorderSide(color: context.mc.border.withValues(alpha: 0.35)),
             ),
           ),
           child: Align(
@@ -238,10 +230,7 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                         Icon(
                           CupertinoIcons.reply,
                           size: 14,
-                          color: CupertinoDynamicColor.resolve(
-                            AppColors.primary,
-                            context,
-                          ),
+                          color: context.mc.primary,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
@@ -254,10 +243,7 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: CupertinoDynamicColor.resolve(
-                                AppColors.primary,
-                                context,
-                              ),
+                              color: context.mc.primary,
                             ),
                           ),
                         ),
@@ -270,10 +256,7 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                           child: Icon(
                             CupertinoIcons.xmark_circle_fill,
                             size: 18,
-                            color: CupertinoDynamicColor.resolve(
-                              AppColors.mutedForeground,
-                              context,
-                            ),
+                            color: context.mc.secondaryLabel,
                           ),
                         ),
                       ],
@@ -297,14 +280,17 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                   if (hasImages) const SizedBox(height: 10),
                   if (widget.uploadProgress != null) ...[
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(AppRadii.sm),
+                      borderRadius: BorderRadius.circular(McRadii.sm),
                       child: Container(
                         height: 5,
-                        color: AppColors.secondary,
+                        color: context.mc.secondary,
                         alignment: Alignment.centerLeft,
                         child: FractionallySizedBox(
                           widthFactor: widget.uploadProgress!.clamp(0.0, 1.0),
-                          child: Container(height: 5, color: AppColors.primary),
+                          child: Container(
+                            height: 5,
+                            color: context.mc.primary,
+                          ),
                         ),
                       ),
                     ),
@@ -317,11 +303,8 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: CupertinoDynamicColor.resolve(
-                            AppColors.secondary,
-                            context,
-                          ),
-                          borderRadius: BorderRadius.circular(AppRadii.pill),
+                          color: context.mc.secondary,
+                          borderRadius: BorderRadius.circular(McRadii.pill),
                         ),
                         child: CupertinoButton(
                           padding: EdgeInsets.zero,
@@ -329,15 +312,9 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                           child: Icon(
                             CupertinoIcons.add,
                             size: 20,
-                            color:
-                                CupertinoDynamicColor.resolve(
-                                  AppColors.foreground,
-                                  context,
-                                ).withValues(
-                                  alpha: widget.onPickImages == null
-                                      ? 0.35
-                                      : 0.85,
-                                ),
+                            color: context.mc.foreground.withValues(
+                              alpha: widget.onPickImages == null ? 0.35 : 0.85,
+                            ),
                           ),
                         ),
                       ),
@@ -348,21 +325,18 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                           curve: Curves.easeOut,
                           constraints: const BoxConstraints(minHeight: 44),
                           decoration: BoxDecoration(
-                            color: CupertinoDynamicColor.resolve(
-                              AppColors.secondary,
-                              context,
-                            ),
+                            color: context.mc.secondary,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color:
-                                  CupertinoDynamicColor.resolve(
-                                    _focusNode.hasFocus
-                                        ? AppColors.primary
-                                        : AppColors.border,
-                                    context,
-                                  ).withValues(
-                                    alpha: _focusNode.hasFocus ? 0.35 : 0.45,
-                                  ),
+                                  (_focusNode.hasFocus
+                                          ? context.mc.primary
+                                          : context.mc.border)
+                                      .withValues(
+                                        alpha: _focusNode.hasFocus
+                                            ? 0.35
+                                            : 0.45,
+                                      ),
                             ),
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -374,30 +348,23 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                                   focusNode: _focusNode,
                                   onTapOutside: (_) => _focusNode.unfocus(),
                                   placeholder: widget.replyTargetName == null
-                                      ? AppLocalizations.of(
-                                          context,
-                                        ).postWriteComment
+                                      ? AppLocalizations.of(context)
+                                            .postWriteComment
                                       : AppLocalizations.of(context).replyHint,
                                   placeholderStyle: TextStyle(
                                     fontSize: 14,
-                                    color: CupertinoDynamicColor.resolve(
-                                      AppColors.mutedForeground,
-                                      context,
-                                    ),
+                                    color: context.mc.secondaryLabel,
                                   ),
                                   decoration: null,
                                   style: TextStyle(
                                     fontSize: 15,
-                                    color: CupertinoDynamicColor.resolve(
-                                      AppColors.foreground,
-                                      context,
-                                    ),
+                                    color: context.mc.foreground,
                                   ),
                                   keyboardType: TextInputType.multiline,
                                   minLines: 1,
                                   maxLines: 5,
                                   textInputAction: TextInputAction.newline,
-                                  cursorColor: AppColors.primary,
+                                  cursorColor: context.mc.primary,
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 11,
                                   ),
@@ -418,12 +385,9 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                                       ? CupertinoIcons.keyboard
                                       : CupertinoIcons.smiley,
                                   size: 20,
-                                  color: CupertinoDynamicColor.resolve(
-                                    _showEmojiPanel
-                                        ? AppColors.primary
-                                        : AppColors.mutedForeground,
-                                    context,
-                                  ),
+                                  color: _showEmojiPanel
+                                      ? context.mc.primary
+                                      : context.mc.secondaryLabel,
                                 ),
                               ),
                             ],
@@ -439,10 +403,9 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                         child: Icon(
                           CupertinoIcons.paperplane_fill,
                           size: 20,
-                          color: CupertinoDynamicColor.resolve(
-                            AppColors.primary,
-                            context,
-                          ).withValues(alpha: widget.isWorking ? 0.35 : 1),
+                          color: context.mc.primary.withValues(
+                            alpha: widget.isWorking ? 0.35 : 1,
+                          ),
                         ),
                       ),
                     ],
@@ -453,11 +416,8 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
                       decoration: BoxDecoration(
-                        color: CupertinoDynamicColor.resolve(
-                          AppColors.secondary,
-                          context,
-                        ),
-                        borderRadius: BorderRadius.circular(AppRadii.lg),
+                        color: context.mc.secondary,
+                        borderRadius: BorderRadius.circular(McRadii.lg),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -488,10 +448,7 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                                 child: Icon(
                                   CupertinoIcons.delete_left,
                                   size: 20,
-                                  color: CupertinoDynamicColor.resolve(
-                                    AppColors.mutedForeground,
-                                    context,
-                                  ),
+                                  color: context.mc.secondaryLabel,
                                 ),
                               ),
                               const Spacer(),
@@ -500,19 +457,18 @@ class _PostDetailCommentComposerState extends State<PostDetailCommentComposer> {
                                   horizontal: 14,
                                   vertical: 8,
                                 ),
-                                color: AppColors.primary,
+                                color: context.mc.primary,
                                 borderRadius: BorderRadius.circular(
-                                  AppRadii.pill,
+                                  McRadii.pill,
                                 ),
                                 onPressed: widget.isWorking
                                     ? null
                                     : _handleSubmit,
                                 child: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  ).postCreatePublish,
-                                  style: const TextStyle(
-                                    color: AppColors.primaryForeground,
+                                  AppLocalizations.of(context)
+                                      .postCreatePublish,
+                                  style: TextStyle(
+                                    color: context.mc.primaryForeground,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                   ),

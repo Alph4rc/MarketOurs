@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../services/image_cache_manager.dart';
-import '../ui/app_theme.dart';
 
 /// A drop-in replacement for `Image.network` that adds disk caching,
 /// configurable memory-cache dimensions, and consistent Cupertino-style
@@ -59,12 +59,12 @@ class AppNetworkImage extends StatelessWidget {
   /// Placeholder shown while the image is loading.
   ///
   /// Default: a [CupertinoActivityIndicator] centered on
-  /// [AppColors.secondary] background.
+  /// [McColors.secondary] background.
   final Widget? loadingPlaceholder;
 
   /// Widget shown when the image fails to load.
   ///
-  /// Default: a [CupertinoIcons.photo] icon on [AppColors.secondary]
+  /// Default: a [CupertinoIcons.photo] icon on [McColors.secondary]
   /// background.
   final Widget? errorPlaceholder;
 
@@ -78,7 +78,11 @@ class AppNetworkImage extends StatelessWidget {
 
   // ---- helpers -----------------------------------------------------------
 
-  static int? _resolveCacheDim(double? displaySize, int? override, BuildContext context) {
+  static int? _resolveCacheDim(
+    double? displaySize,
+    int? override,
+    BuildContext context,
+  ) {
     if (override != null) return override;
     if (displaySize == null || displaySize == double.infinity) return null;
     final dpr = MediaQuery.devicePixelRatioOf(context);
@@ -90,7 +94,11 @@ class AppNetworkImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resolvedMemCacheWidth = _resolveCacheDim(width, cacheWidth, context);
-    final resolvedMemCacheHeight = _resolveCacheDim(height, cacheHeight, context);
+    final resolvedMemCacheHeight = _resolveCacheDim(
+      height,
+      cacheHeight,
+      context,
+    );
 
     final image = CachedNetworkImage(
       imageUrl: url,
@@ -121,22 +129,19 @@ class AppNetworkImage extends StatelessWidget {
 
   static Widget _defaultLoadingPlaceholder(BuildContext context) {
     return Container(
-      color: CupertinoDynamicColor.resolve(AppColors.secondary, context),
+      color: context.mc.secondary,
       child: const Center(child: CupertinoActivityIndicator(radius: 10)),
     );
   }
 
   static Widget _defaultErrorPlaceholder(BuildContext context) {
     return Container(
-      color: CupertinoDynamicColor.resolve(AppColors.secondary, context),
+      color: context.mc.secondary,
       child: Center(
         child: Icon(
           CupertinoIcons.photo,
           size: 24,
-          color: CupertinoDynamicColor.resolve(
-            AppColors.mutedForeground,
-            context,
-          ),
+          color: context.mc.secondaryLabel,
         ),
       ),
     );

@@ -2,8 +2,10 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import 'package:mobile_app/l10n/app_localizations.dart';
+
 import '../../components/editable_image_wrap.dart';
 import '../../components/report_sheet.dart';
 import '../../models/report.dart';
@@ -22,11 +24,7 @@ import '../../services/image_compression_service.dart';
 import '../../services/share_service.dart';
 import '../../services/user_service.dart';
 import '../../services/error_messages.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_fields.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 import '../../utils/dto_validation.dart';
 import 'post_detail_drafts.dart';
 import 'widgets/post_detail_action_bar.dart';
@@ -206,11 +204,11 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       if (reloadAll) await _loadData();
       if (!reloadAll && reloadComments) await _loadComments();
       if (successMessage != null && mounted) {
-        await AppFeedback.showSuccess(context, message: successMessage);
+        await McFeedback.showSuccess(context, message: successMessage);
       }
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -229,11 +227,10 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     final content = _commentController.text.trim();
     if (content.isEmpty && _commentImageEntries.isEmpty) return;
     if (content.length > DtoLimits.commentContentMax) {
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
-        message: AppLocalizations.of(
-          context,
-        ).postCommentTooLong(DtoLimits.commentContentMax),
+        message: AppLocalizations.of(context)
+            .postCommentTooLong(DtoLimits.commentContentMax),
       );
       return;
     }
@@ -282,7 +279,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           _replyTarget = null;
         });
         if (mounted) {
-          await AppFeedback.showSuccess(
+          await McFeedback.showSuccess(
             context,
             message: AppLocalizations.of(context).postCommentSent,
           );
@@ -290,7 +287,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       }
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -317,7 +314,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       if (!mounted) return;
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: AppLocalizations.of(context).shareFailed,
       );
@@ -349,11 +346,10 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     }
     if (draft.content.trim().length > DtoLimits.commentContentMax) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
-        message: AppLocalizations.of(
-          context,
-        ).postCommentTooLong(DtoLimits.commentContentMax),
+        message: AppLocalizations.of(context)
+            .postCommentTooLong(DtoLimits.commentContentMax),
       );
       return;
     }
@@ -368,14 +364,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       );
       _updateCommentLocally(comment.id, draft.content.trim(), nextImages);
       if (mounted) {
-        await AppFeedback.showSuccess(
+        await McFeedback.showSuccess(
           context,
           message: AppLocalizations.of(context).commentUpdated,
         );
       }
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -503,14 +499,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       await _commentService.deleteComment(comment.id);
       _removeCommentLocally(comment.id);
       if (mounted) {
-        await AppFeedback.showSuccess(
+        await McFeedback.showSuccess(
           context,
           message: AppLocalizations.of(context).commentDeleted,
         );
       }
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -698,7 +694,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     );
     if (validationError != null) {
       if (!mounted) return;
-      await AppFeedback.showError(context, message: validationError);
+      await McFeedback.showError(context, message: validationError);
       return;
     }
 
@@ -729,14 +725,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           );
       if (mounted && result.data != null) {
         setState(() => _post = result.data);
-        await AppFeedback.showSuccess(
+        await McFeedback.showSuccess(
           context,
           message: AppLocalizations.of(context).postUpdated,
         );
       }
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -765,7 +761,12 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   }
 
   Future<bool?> _confirm(String message) {
-    return AppFeedback.confirm(context, message: message, destructive: true);
+    return McFeedback.confirm(
+      context,
+      message: message,
+      destructive: true,
+      barrierDismissible: true,
+    );
   }
 
   Future<CommentDraft?> _openCommentComposer({
@@ -779,7 +780,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       initialImages.take(postDetailMaxCommentImages),
     );
     final selectedImages = <XFile>[];
-    final result = await showAppBottomSheet<CommentDraft>(
+    final result = await showMcBottomSheet<CommentDraft>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -810,9 +811,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTextStyles.sectionTitle(context)),
+                  Text(title, style: context.mc.textSection),
                   const SizedBox(height: 16),
-                  AppTextField(
+                  McField.text(
                     controller: controller,
                     maxLines: 5,
                     placeholder: hintText,
@@ -820,9 +821,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     validator: (v) => optionalMaxValidator(
                       v,
                       max: DtoLimits.commentContentMax,
-                      maxMessage: AppLocalizations.of(
-                        context,
-                      ).postCommentTooLong(DtoLimits.commentContentMax),
+                      maxMessage: AppLocalizations.of(context)
+                          .postCommentTooLong(DtoLimits.commentContentMax),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -852,13 +852,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       const SizedBox(width: 8),
                       Text(
                         '${existingImages.length + selectedImages.length} / $postDetailMaxCommentImages',
-                        style: AppTextStyles.label(context),
+                        style: context.mc.textLabel,
                       ),
                       const Spacer(),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  AppPrimaryButton(
+                  McButton.primary(
                     onPressed: () => Navigator.of(context).pop(
                       CommentDraft(
                         content: controller.text,
@@ -900,7 +900,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     int imageIdCounter = imageEntries.length;
     PostTagDto? selectedTag = initialTag;
 
-    final result = await showAppBottomSheet<PostDraft>(
+    final result = await showMcBottomSheet<PostDraft>(
       context: context,
       builder: (context) {
         return StatefulBuilder(
@@ -978,9 +978,8 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     ),
                   );
                 },
-                submitLabel: AppLocalizations.of(
-                  context,
-                ).notificationSaveSettings,
+                submitLabel: AppLocalizations.of(context)
+                    .notificationSaveSettings,
                 tagEmptyText: availableTags.isEmpty
                     ? AppLocalizations.of(context).postCreateNoTag
                     : AppLocalizations.of(context).postCreateNoTag,
@@ -1005,18 +1004,16 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       title,
       emptyMessage: AppLocalizations.of(context).postCreateTitleEmpty,
       max: DtoLimits.postTitleMax,
-      maxMessage: AppLocalizations.of(
-        context,
-      ).postCreateTitleTooLong(DtoLimits.postTitleMax),
+      maxMessage: AppLocalizations.of(context)
+          .postCreateTitleTooLong(DtoLimits.postTitleMax),
     );
     if (titleError != null) return titleError;
 
     final contentError = optionalMaxValidator(
       content,
       max: DtoLimits.postContentMax,
-      maxMessage: AppLocalizations.of(
-        context,
-      ).postCreateContentTooLong(DtoLimits.postContentMax),
+      maxMessage: AppLocalizations.of(context)
+          .postCreateContentTooLong(DtoLimits.postContentMax),
     );
     if (contentError != null) return contentError;
     if (content.trim().isEmpty && !hasImages) {
@@ -1245,18 +1242,18 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           );
 
     if (_isLoading) {
-      return AppPageScaffold(
+      return McPageScaffold(
         title: AppLocalizations.of(context).postDetail,
-        navigationBarStyle: AppNavigationBarStyle.compact,
+        navigationBarStyle: McNavigationBarStyle.compact,
         trailing: trailing,
         child: const Center(child: CupertinoActivityIndicator(radius: 14)),
       );
     }
 
     if (_errorMessage != null || post == null) {
-      return AppPageScaffold(
+      return McPageScaffold(
         title: AppLocalizations.of(context).postDetail,
-        navigationBarStyle: AppNavigationBarStyle.compact,
+        navigationBarStyle: McNavigationBarStyle.compact,
         trailing: trailing,
         child: PostDetailErrorView(
           message:
@@ -1266,9 +1263,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       );
     }
 
-    return AppPageScaffold(
+    return McPageScaffold(
       title: AppLocalizations.of(context).postDetail,
-      navigationBarStyle: AppNavigationBarStyle.compact,
+      navigationBarStyle: McNavigationBarStyle.compact,
       trailing: trailing,
       bottomBar: _buildCommentComposer(context),
       slivers: [
@@ -1307,34 +1304,28 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              AppLocalizations.of(
-                                context,
-                              ).postCommentCount(_comments.length),
-                              style: AppTextStyles.sectionTitle(context),
+                              AppLocalizations.of(context)
+                                  .postCommentCount(_comments.length),
+                              style: context.mc.textSection,
                             ),
                           ),
                           CupertinoSlidingSegmentedControl<String>(
                             groupValue: _commentSort,
-                            backgroundColor: CupertinoDynamicColor.resolve(
-                              AppColors.secondary,
-                              context,
-                            ),
+                            backgroundColor: context.mc.secondary,
                             children: {
                               'recent': Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 child: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  ).postCommentSortNewest,
+                                  AppLocalizations.of(context)
+                                      .postCommentSortNewest,
                                   style: TextStyle(fontSize: 13),
                                 ),
                               ),
                               'hot': Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
                                 child: Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  ).postCommentSortHot,
+                                  AppLocalizations.of(context)
+                                      .postCommentSortHot,
                                   style: TextStyle(fontSize: 13),
                                 ),
                               ),
@@ -1357,12 +1348,11 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                           ),
                         ),
                       if (_comments.isEmpty && !_isCommentsLoading)
-                        AppEmptyState(
+                        McEmpty.placeholder(
                           icon: CupertinoIcons.chat_bubble,
                           title: AppLocalizations.of(context).postNoComments,
-                          description: AppLocalizations.of(
-                            context,
-                          ).postEmptyCommentCTA,
+                          description: AppLocalizations.of(context)
+                              .postEmptyCommentCTA,
                         )
                       else
                         ..._comments.map(

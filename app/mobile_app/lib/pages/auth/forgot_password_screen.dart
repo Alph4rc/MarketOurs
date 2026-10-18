@@ -1,16 +1,14 @@
 import 'dart:async';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../components/slider_captcha.dart';
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_fields.dart';
-import '../../ui/app_widgets.dart';
-import '../../components/slider_captcha.dart';
 import 'auth_scaffold.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
@@ -51,7 +49,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         return;
       }
 
-      await AppFeedback.showSuccess(context, message: AppLocalizations.of(context).verifyCodeSentContinue);
+      await McFeedback.showSuccess(
+        context,
+        message: AppLocalizations.of(context).verifyCodeSentContinue,
+      );
       if (!mounted) {
         return;
       }
@@ -65,7 +66,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           .asData
           ?.value
           .errorMessage;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: (errorMessage != null && errorMessage.isNotEmpty)
             ? errorMessage
@@ -116,7 +117,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AppTextField(
+            McField.text(
               controller: _accountController,
               placeholder: AppLocalizations.of(context).authAccountPlaceholder,
               validator: (value) {
@@ -127,9 +128,13 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               },
             ),
             const SizedBox(height: 24),
-            AppPrimaryButton(
+            McButton.primary(
               onPressed: isSubmitting ? null : _submit,
-              child: Text(isSubmitting ? AppLocalizations.of(context).profileSaving : AppLocalizations.of(context).authSendCode),
+              child: Text(
+                isSubmitting
+                    ? AppLocalizations.of(context).profileSaving
+                    : AppLocalizations.of(context).authSendCode,
+              ),
             ),
           ],
         ),

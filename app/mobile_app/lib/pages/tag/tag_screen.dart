@@ -1,6 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/components/post_card.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -9,8 +10,6 @@ import '../../providers/post_feed_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/error_messages.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 
 class TagScreen extends ConsumerStatefulWidget {
   const TagScreen({super.key, required this.tagId});
@@ -62,7 +61,9 @@ class _TagScreenState extends ConsumerState<TagScreen> {
     });
 
     try {
-      final response = await ref.read(postServiceProvider).getPostTag(widget.tagId);
+      final response = await ref
+          .read(postServiceProvider)
+          .getPostTag(widget.tagId);
       if (!mounted) return;
       setState(() {
         _tag = response.data;
@@ -80,15 +81,15 @@ class _TagScreenState extends ConsumerState<TagScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoadingTag) {
-      return const CupertinoPageScaffold(
-        backgroundColor: AppColors.background,
-        child: Center(child: CupertinoActivityIndicator(radius: 14)),
+      return CupertinoPageScaffold(
+        backgroundColor: context.mc.background,
+        child: const Center(child: CupertinoActivityIndicator(radius: 14)),
       );
     }
 
     if (_tag == null) {
       return CupertinoPageScaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: context.mc.background,
         navigationBar: CupertinoNavigationBar(
           middle: Text(AppLocalizations.of(context).postCreateTag),
         ),
@@ -96,11 +97,12 @@ class _TagScreenState extends ConsumerState<TagScreen> {
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: AppEmptyState(
+              child: McEmpty.placeholder(
                 icon: CupertinoIcons.tag,
                 title: AppLocalizations.of(context).tagUnavailableTitle,
-                description: _tagError ?? AppLocalizations.of(context).tagNotFoundDesc,
-                action: AppPrimaryButton(
+                description:
+                    _tagError ?? AppLocalizations.of(context).tagNotFoundDesc,
+                action: McButton.primary(
                   onPressed: () => context.go(AppRoutePaths.home),
                   child: Text(AppLocalizations.of(context).tagGoHome),
                 ),
@@ -114,7 +116,7 @@ class _TagScreenState extends ConsumerState<TagScreen> {
     final feedAsync = ref.watch(tagFeedProvider(widget.tagId));
 
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.mc.background,
       child: feedAsync.when(
         data: (state) => CustomScrollView(
           controller: _scrollController,
@@ -123,15 +125,18 @@ class _TagScreenState extends ConsumerState<TagScreen> {
           ),
           slivers: [
             CupertinoSliverNavigationBar(
-              largeTitle: Text(_tag!.name?.trim().isNotEmpty == true ? _tag!.name!.trim() : AppLocalizations.of(context).postCreateTag),
-              backgroundColor: CupertinoDynamicColor.resolve(
-                AppColors.background,
-                context,
-              ).withValues(alpha: 0.94),
+              largeTitle: Text(
+                _tag!.name?.trim().isNotEmpty == true
+                    ? _tag!.name!.trim()
+                    : AppLocalizations.of(context).postCreateTag,
+              ),
+              backgroundColor: context.mc.background.withValues(alpha: 0.94),
               border: null,
             ),
             CupertinoSliverRefreshControl(
-              onRefresh: ref.read(tagFeedProvider(widget.tagId).notifier).refresh,
+              onRefresh: ref
+                  .read(tagFeedProvider(widget.tagId).notifier)
+                  .refresh,
             ),
             SliverToBoxAdapter(
               child: AppResponsiveCenter(
@@ -145,14 +150,18 @@ class _TagScreenState extends ConsumerState<TagScreen> {
                   children: [
                     CupertinoSearchTextField(
                       controller: _searchController,
-                      placeholder: AppLocalizations.of(context).tagSearchPlaceholder,
-                      borderRadius: BorderRadius.circular(AppRadii.md),
-                      backgroundColor: AppColors.secondary,
-                      onSubmitted: (value) =>
-                          ref.read(tagFeedProvider(widget.tagId).notifier).search(value),
+                      placeholder: AppLocalizations.of(context)
+                          .tagSearchPlaceholder,
+                      borderRadius: BorderRadius.circular(McRadii.md),
+                      backgroundColor: context.mc.secondary,
+                      onSubmitted: (value) => ref
+                          .read(tagFeedProvider(widget.tagId).notifier)
+                          .search(value),
                       onChanged: (value) {
                         if (value.trim().isEmpty && state.keyword.isNotEmpty) {
-                          ref.read(tagFeedProvider(widget.tagId).notifier).clearSearch();
+                          ref
+                              .read(tagFeedProvider(widget.tagId).notifier)
+                              .clearSearch();
                         }
                       },
                     ),
@@ -179,16 +188,18 @@ class _TagScreenState extends ConsumerState<TagScreen> {
             ),
           ],
         ),
-        loading: () => const Center(child: CupertinoActivityIndicator(radius: 14)),
+        loading: () =>
+            const Center(child: CupertinoActivityIndicator(radius: 14)),
         error: (error, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: AppEmptyState(
+            child: McEmpty.placeholder(
               icon: CupertinoIcons.exclamationmark_triangle,
               title: AppLocalizations.of(context).loadingFailed,
               description: extractErrorFromException(error),
-              action: AppPrimaryButton(
-                onPressed: () => ref.read(tagFeedProvider(widget.tagId).notifier).refresh(),
+              action: McButton.primary(
+                onPressed: () =>
+                    ref.read(tagFeedProvider(widget.tagId).notifier).refresh(),
                 child: Text(AppLocalizations.of(context).reload),
               ),
             ),
@@ -224,10 +235,14 @@ class _TagPostListSection extends StatelessWidget {
     }
 
     if (posts.isEmpty) {
-      return AppEmptyState(
+      return McEmpty.placeholder(
         icon: keyword.isEmpty ? CupertinoIcons.tag : CupertinoIcons.search,
-        title: keyword.isEmpty ? AppLocalizations.of(context).postTagEmpty : AppLocalizations.of(context).homeNoSearchResults,
-        description: keyword.isEmpty ? AppLocalizations.of(context).tagNoPostsDesc : AppLocalizations.of(context).tagNoSearchResultsDesc,
+        title: keyword.isEmpty
+            ? AppLocalizations.of(context).postTagEmpty
+            : AppLocalizations.of(context).homeNoSearchResults,
+        description: keyword.isEmpty
+            ? AppLocalizations.of(context).tagNoPostsDesc
+            : AppLocalizations.of(context).tagNoSearchResultsDesc,
       );
     }
 
@@ -298,8 +313,10 @@ class _TagSearchLoadingIndicator extends StatelessWidget {
         const CupertinoActivityIndicator(radius: 8),
         const SizedBox(width: 8),
         Text(
-          keyword.isEmpty ? AppLocalizations.of(context).tagRefreshingPosts : AppLocalizations.of(context).tagSearching,
-          style: AppTextStyles.label(context),
+          keyword.isEmpty
+              ? AppLocalizations.of(context).tagRefreshingPosts
+              : AppLocalizations.of(context).tagSearching,
+          style: context.mc.textLabel,
         ),
       ],
     );

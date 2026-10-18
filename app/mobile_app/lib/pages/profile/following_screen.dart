@@ -1,16 +1,16 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
+import '../../components/app_avatar.dart';
+import '../../components/auto_sized_page_view.dart';
 import '../../models/user.dart';
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/follow_service.dart';
 import '../../services/error_messages.dart';
-import '../../ui/app_feedback.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 import '../../l10n/app_localizations.dart';
 
 class FollowingScreen extends ConsumerStatefulWidget {
@@ -72,7 +72,7 @@ class _FollowingScreenState extends ConsumerState<FollowingScreen> {
       }
     } catch (error) {
       if (mounted) {
-        await AppFeedback.showError(
+        await McFeedback.showError(
           context,
           message: extractErrorFromException(error),
         );
@@ -103,7 +103,7 @@ class _FollowingScreenState extends ConsumerState<FollowingScreen> {
       }
     } catch (error) {
       if (mounted) {
-        await AppFeedback.showError(
+        await McFeedback.showError(
           context,
           message: extractErrorFromException(error),
         );
@@ -123,7 +123,7 @@ class _FollowingScreenState extends ConsumerState<FollowingScreen> {
       }
     } catch (error) {
       if (mounted) {
-        await AppFeedback.showError(
+        await McFeedback.showError(
           context,
           message: extractErrorFromException(error),
         );
@@ -154,7 +154,7 @@ class _FollowingScreenState extends ConsumerState<FollowingScreen> {
         else if (list.isEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 40),
-            child: AppEmptyState(
+            child: McEmpty.placeholder(
               icon: isBlocked
                   ? CupertinoIcons.hand_raised
                   : CupertinoIcons.person_2,
@@ -184,9 +184,9 @@ class _FollowingScreenState extends ConsumerState<FollowingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppPageScaffold(
+    return McPageScaffold(
       title: AppLocalizations.of(context).profileSocial,
-      navigationBarStyle: AppNavigationBarStyle.compact,
+      navigationBarStyle: McNavigationBarStyle.compact,
       slivers: [
         CupertinoSliverRefreshControl(onRefresh: _loadData),
         SliverToBoxAdapter(
@@ -196,18 +196,21 @@ class _FollowingScreenState extends ConsumerState<FollowingScreen> {
               children: [
                 CupertinoSlidingSegmentedControl<String>(
                   groupValue: _activeTab,
-                  backgroundColor: CupertinoDynamicColor.resolve(
-                    AppColors.secondary,
-                    context,
-                  ),
+                  backgroundColor: context.mc.secondary,
                   children: {
                     'following': Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(AppLocalizations.of(context).profileFollowing, style: const TextStyle(fontSize: 14)),
+                      child: Text(
+                        AppLocalizations.of(context).profileFollowing,
+                        style: const TextStyle(fontSize: 14),
+                      ),
                     ),
                     'blocked': Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(AppLocalizations.of(context).profileBlock, style: const TextStyle(fontSize: 14)),
+                      child: Text(
+                        AppLocalizations.of(context).profileBlock,
+                        style: const TextStyle(fontSize: 14),
+                      ),
                     ),
                   },
                   onValueChanged: _handleTabChanged,
@@ -251,7 +254,7 @@ class _UserTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: AppTappableCard(
+      child: McCard.elevated(
         onPressed: onTap,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
@@ -260,11 +263,13 @@ class _UserTile extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                user.name?.isNotEmpty == true ? user.name! : AppLocalizations.of(context).profileNoNickname,
-                style: const TextStyle(
+                user.name?.isNotEmpty == true
+                    ? user.name!
+                    : AppLocalizations.of(context).profileNoNickname,
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.foreground,
+                  color: context.mc.foreground,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -274,18 +279,20 @@ class _UserTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               minimumSize: Size.zero,
               color: isBlocked
-                  ? CupertinoColors.systemRed.withValues(alpha: 0.1)
-                  : AppColors.secondary,
+                  ? context.mc.destructive.withValues(alpha: 0.1)
+                  : context.mc.secondary,
               borderRadius: BorderRadius.circular(10),
               onPressed: isLoading ? null : onAction,
               child: Text(
-                isBlocked ? AppLocalizations.of(context).profileUnblockLabel : AppLocalizations.of(context).profileUnfollowLabel,
+                isBlocked
+                    ? AppLocalizations.of(context).profileUnblockLabel
+                    : AppLocalizations.of(context).profileUnfollowLabel,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: isBlocked
-                      ? CupertinoColors.systemRed
-                      : AppColors.mutedForeground,
+                      ? context.mc.destructive
+                      : context.mc.secondaryLabel,
                 ),
               ),
             ),

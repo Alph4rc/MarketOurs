@@ -4,10 +4,10 @@ import 'dart:ui' as ui;
 
 import 'package:dio/dio.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../services/auth_service.dart';
 import '../l10n/app_localizations.dart';
-import '../ui/app_theme.dart';
 
 const _kDisplayWidth = 280.0;
 const _kBgOriginalWidth = 300.0;
@@ -80,7 +80,9 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
       if (mounted) {
         setState(() {
           _loading = false;
-          _error = e.response?.data?['message'] ?? AppLocalizations.of(context).captchaFailed;
+          _error =
+              e.response?.data?['message'] ??
+              AppLocalizations.of(context).captchaFailed;
         });
       }
     } catch (_) {
@@ -125,7 +127,9 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
         setState(() {
           _verifying = false;
           _sliderValue = 0;
-          _error = e.response?.data?['message'] ?? AppLocalizations.of(context).captchaVerifyFailed;
+          _error =
+              e.response?.data?['message'] ??
+              AppLocalizations.of(context).captchaVerifyFailed;
         });
       }
     } catch (_) {
@@ -153,7 +157,7 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: CupertinoDynamicColor.resolve(AppColors.card, context),
+                color: context.mc.card,
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Column(
@@ -161,17 +165,14 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                 children: [
                   Text(
                     AppLocalizations.of(context).captchaComplete,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     AppLocalizations.of(context).captchaDragSlider,
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.mutedForeground,
+                      color: context.mc.secondaryLabel,
                     ),
                   ),
                   if (_error != null) ...[
@@ -182,7 +183,7 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.destructive.withValues(alpha: 0.1),
+                        color: context.mc.destructive.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -190,7 +191,7 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.destructive,
+                          color: context.mc.destructive,
                         ),
                       ),
                     ),
@@ -199,9 +200,7 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                   if (_loading)
                     const SizedBox(
                       height: 80,
-                      child: Center(
-                        child: CupertinoActivityIndicator(),
-                      ),
+                      child: Center(child: CupertinoActivityIndicator()),
                     )
                   else if (_challenge != null &&
                       _bgImage != null &&
@@ -221,16 +220,16 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                         Expanded(
                           child: CupertinoButton(
                             padding: EdgeInsets.zero,
-                            onPressed:
-                                _verifying ? null : _fetchChallenge,
+                            onPressed: _verifying ? null : _fetchChallenge,
                             child: Text(
                               AppLocalizations.of(context).captchaRefreshLabel,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: _verifying
-                                    ? AppColors.mutedForeground
-                                        .withValues(alpha: 0.4)
-                                    : AppColors.mutedForeground,
+                                    ? context.mc.secondaryLabel.withValues(
+                                        alpha: 0.4,
+                                      )
+                                    : context.mc.secondaryLabel,
                               ),
                             ),
                           ),
@@ -243,7 +242,7 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                               AppLocalizations.of(context).cancel,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.mutedForeground,
+                                color: context.mc.secondaryLabel,
                               ),
                             ),
                           ),
@@ -272,7 +271,7 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
             width: _trackWidth,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.muted.withValues(alpha: 0.6),
+              color: context.mc.muted.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(16),
             ),
             clipBehavior: Clip.hardEdge,
@@ -285,7 +284,7 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                       widthFactor: progress,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.2),
+                          color: context.mc.primary.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
@@ -299,7 +298,7 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF999999),
+                        color: context.mc.tertiaryLabel,
                       ),
                     ),
                   ),
@@ -314,8 +313,10 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                   ? null
                   : (details) {
                       setState(() {
-                        _sliderValue = (details.localPosition.dx)
-                            .clamp(0.0, _trackWidth);
+                        _sliderValue = (details.localPosition.dx).clamp(
+                          0.0,
+                          _trackWidth,
+                        );
                       });
                     },
               onHorizontalDragEnd: _verifying || _success
@@ -325,11 +326,11 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: context.mc.primary,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: context.mc.primary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -341,19 +342,19 @@ class _SliderCaptchaState extends State<SliderCaptcha> {
                           color: CupertinoColors.white,
                         )
                       : _success
-                          ? const Text(
-                              '✓',
-                              style: TextStyle(
-                                color: CupertinoColors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          : const Icon(
-                              CupertinoIcons.chevron_right,
-                              color: CupertinoColors.white,
-                              size: 22,
-                            ),
+                      ? const Text(
+                          '✓',
+                          style: TextStyle(
+                            color: CupertinoColors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : const Icon(
+                          CupertinoIcons.chevron_right,
+                          color: CupertinoColors.white,
+                          size: 22,
+                        ),
                 ),
               ),
             ),

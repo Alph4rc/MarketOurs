@@ -1,8 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 
 class AuthScaffold extends StatelessWidget {
   const AuthScaffold({
@@ -19,7 +18,7 @@ class AuthScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.mc.background,
       child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -33,16 +32,10 @@ class AuthScaffold extends StatelessWidget {
                     padding: const EdgeInsets.all(28),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(title, style: AppTextStyles.hero(context)),
-                      ],
+                      children: [Text(title, style: context.mc.textHero)],
                     ),
                   ),
-                  AppGlassCard(
-                    padding: const EdgeInsets.all(24),
-                    radius: AppRadii.lg,
-                    child: child,
-                  ),
+                  McCard.glass(padding: const EdgeInsets.all(24), child: child),
                   if (footer != null) ...[const SizedBox(height: 14), footer!],
                 ],
               ),

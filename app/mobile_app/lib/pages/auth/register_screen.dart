@@ -4,21 +4,18 @@ import 'dart:math';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/gestures.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../components/app_network_image.dart';
+import '../../components/slider_captcha.dart';
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/file_service.dart';
 import '../../services/image_compression_service.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_fields.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
-import '../../components/slider_captcha.dart';
 import '../../utils/dto_validation.dart';
 import 'auth_scaffold.dart';
 import 'password_form_field.dart';
@@ -180,7 +177,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
 
     if (!_agreedToTerms) {
-      await AppFeedback.showError(context, message: AppLocalizations.of(context).authMustAgreeTerms);
+      await McFeedback.showError(
+        context,
+        message: AppLocalizations.of(context).authMustAgreeTerms,
+      );
       return;
     }
 
@@ -204,7 +204,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           avatar = url;
         } else {
           if (!mounted) return;
-          await AppFeedback.showError(context, message: AppLocalizations.of(context).errorAvatarUploadFailed);
+          await McFeedback.showError(
+            context,
+            message: AppLocalizations.of(context).errorAvatarUploadFailed,
+          );
           return;
         }
       }
@@ -245,7 +248,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           .asData
           ?.value
           .errorMessage;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: (errorMessage != null && errorMessage.isNotEmpty)
             ? errorMessage
@@ -300,7 +303,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.3),
+                          color: context.mc.primary.withValues(alpha: 0.3),
                           width: 3,
                         ),
                       ),
@@ -318,7 +321,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 errorPlaceholder: Icon(
                                   CupertinoIcons.person_circle,
                                   size: 64,
-                                  color: AppColors.mutedForeground,
+                                  color: context.mc.secondaryLabel,
                                 ),
                               ),
                       ),
@@ -330,11 +333,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          color: context.mc.primary,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.4),
+                              color: context.mc.primary.withValues(alpha: 0.4),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -355,21 +358,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             Center(
               child: Text(
                 AppLocalizations.of(context).profileClickToChangeAvatar,
-                style: AppTextStyles.label(context).copyWith(fontSize: 11),
+                style: context.mc.textLabel.copyWith(fontSize: 11),
               ),
             ),
             const SizedBox(height: 20),
 
             // Name
-            Text(AppLocalizations.of(context).displayName, style: AppTextStyles.label(context)),
+            Text(
+              AppLocalizations.of(context).displayName,
+              style: context.mc.textLabel,
+            ),
             const SizedBox(height: 8),
-            AppTextField(
+            McField.text(
               controller: _nameController,
               placeholder: AppLocalizations.of(context).authNamePlaceholder,
               maxLength: DtoLimits.userNameMax,
               prefix: Icon(
                 CupertinoIcons.person,
-                color: AppColors.mutedForeground,
+                color: context.mc.secondaryLabel,
                 size: 18,
               ),
               validator: (value) {
@@ -377,7 +383,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   return AppLocalizations.of(context).validatorNameRequired;
                 }
                 if (value.trim().length > DtoLimits.userNameMax) {
-                  return AppLocalizations.of(context).validatorNameTooLong(DtoLimits.userNameMax);
+                  return AppLocalizations.of(context)
+                      .validatorNameTooLong(DtoLimits.userNameMax);
                 }
                 return null;
               },
@@ -385,16 +392,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             const SizedBox(height: 20),
 
             // Account
-            Text(AppLocalizations.of(context).authAccount, style: AppTextStyles.label(context)),
+            Text(
+              AppLocalizations.of(context).authAccount,
+              style: context.mc.textLabel,
+            ),
             const SizedBox(height: 8),
-            AppTextField(
+            McField.text(
               controller: _accountController,
               placeholder: AppLocalizations.of(context).authAccountHint,
               keyboardType: TextInputType.emailAddress,
               maxLength: DtoLimits.userAccountMax,
               prefix: Icon(
                 CupertinoIcons.mail,
-                color: AppColors.mutedForeground,
+                color: context.mc.secondaryLabel,
                 size: 18,
               ),
               validator: (value) {
@@ -402,10 +412,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   return AppLocalizations.of(context).validatorAccountRequired;
                 }
                 if (value.trim().length > DtoLimits.userAccountMax) {
-                  return AppLocalizations.of(context).validatorAccountTooLong(DtoLimits.userAccountMax);
+                  return AppLocalizations.of(context)
+                      .validatorAccountTooLong(DtoLimits.userAccountMax);
                 }
                 if (_isAccountDirty && !_isAccountValid) {
-                  return AppLocalizations.of(context).validatorEmailOrPhoneRequired;
+                  return AppLocalizations.of(context)
+                      .validatorEmailOrPhoneRequired;
                 }
                 return null;
               },
@@ -422,14 +434,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.destructive,
+                    color: context.mc.destructive,
                   ),
                 ),
               ),
             const SizedBox(height: 20),
 
             // Password
-            Text(AppLocalizations.of(context).authPassword, style: AppTextStyles.label(context)),
+            Text(
+              AppLocalizations.of(context).authPassword,
+              style: context.mc.textLabel,
+            ),
             const SizedBox(height: 8),
             PasswordFormField(
               controller: _passwordController,
@@ -460,7 +475,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.destructive,
+                        color: context.mc.destructive,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -468,7 +483,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       AppLocalizations.of(context).authPasswordRequirement,
                       style: TextStyle(
                         fontSize: 10,
-                        color: AppColors.mutedForeground,
+                        color: context.mc.secondaryLabel,
                       ),
                     ),
                   ],
@@ -482,9 +497,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
-                    _agreedToTerms ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle,
+                    _agreedToTerms
+                        ? CupertinoIcons.checkmark_circle_fill
+                        : CupertinoIcons.circle,
                     size: 20,
-                    color: _agreedToTerms ? AppColors.primary : AppColors.mutedForeground,
+                    color: _agreedToTerms
+                        ? context.mc.primary
+                        : context.mc.secondaryLabel,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -492,28 +511,34 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       text: TextSpan(
                         style: TextStyle(
                           fontSize: 12,
-                          color: CupertinoDynamicColor.resolve(AppColors.mutedForeground, context),
+                          color: context.mc.secondaryLabel,
                         ),
                         children: [
-                          TextSpan(text: '${AppLocalizations.of(context).authAgreeToTermsPrefix} '),
+                          TextSpan(
+                            text:
+                                '${AppLocalizations.of(context).authAgreeToTermsPrefix} ',
+                          ),
                           TextSpan(
                             text: AppLocalizations.of(context).termsOfService,
                             style: TextStyle(
-                              color: CupertinoDynamicColor.resolve(AppColors.primary, context),
+                              color: context.mc.primary,
                               fontWeight: FontWeight.w600,
                             ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => context.push(AppRoutePaths.terms),
                           ),
-                          TextSpan(text: ' ${AppLocalizations.of(context).authAnd} '),
+                          TextSpan(
+                            text: ' ${AppLocalizations.of(context).authAnd} ',
+                          ),
                           TextSpan(
                             text: AppLocalizations.of(context).privacyPolicy,
                             style: TextStyle(
-                              color: CupertinoDynamicColor.resolve(AppColors.primary, context),
+                              color: context.mc.primary,
                               fontWeight: FontWeight.w600,
                             ),
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () => context.push(AppRoutePaths.privacy),
+                              ..onTap = () =>
+                                  context.push(AppRoutePaths.privacy),
                           ),
                         ],
                       ),
@@ -524,9 +549,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
             const SizedBox(height: 20),
 
-            AppPrimaryButton(
+            McButton.primary(
               onPressed: submitDisabled ? null : _submit,
-              child: Text(isSubmitting ? AppLocalizations.of(context).profileSaving : AppLocalizations.of(context).authRegister),
+              child: Text(
+                isSubmitting
+                    ? AppLocalizations.of(context).profileSaving
+                    : AppLocalizations.of(context).authRegister,
+              ),
             ),
           ],
         ),

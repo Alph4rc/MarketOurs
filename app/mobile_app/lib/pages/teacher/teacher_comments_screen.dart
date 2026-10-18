@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 
+import '../../components/app_avatar.dart';
 import '../../components/teacher_comment_actions.dart';
 import '../../models/teacher_comment.dart';
 import '../../providers/auth_provider.dart';
@@ -12,11 +14,7 @@ import '../../providers/post_feed_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/error_messages.dart';
 import '../../services/teacher_comment_service.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_fields.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 import '../../utils/date_formatters.dart';
 
 class TeacherCommentsScreen extends ConsumerStatefulWidget {
@@ -114,7 +112,7 @@ class _TeacherCommentsScreenState extends ConsumerState<TeacherCommentsScreen> {
       });
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -146,21 +144,21 @@ class _TeacherCommentsScreenState extends ConsumerState<TeacherCommentsScreen> {
     final comment = _commentController.text.trim();
 
     if (teacherName.isEmpty) {
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: l10n.teacherCommentsTeacherRequired,
       );
       return false;
     }
     if (courseName.isEmpty) {
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: l10n.teacherCommentsCourseRequired,
       );
       return false;
     }
     if (comment.length > _commentMaxLength) {
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: l10n.teacherCommentsCommentTooLong(_commentMaxLength),
       );
@@ -182,7 +180,7 @@ class _TeacherCommentsScreenState extends ConsumerState<TeacherCommentsScreen> {
       _courseController.clear();
       _commentController.clear();
       setState(() => _star = 5);
-      await AppFeedback.showSuccess(
+      await McFeedback.showSuccess(
         context,
         message: l10n.teacherCommentsSubmitted,
       );
@@ -190,7 +188,7 @@ class _TeacherCommentsScreenState extends ConsumerState<TeacherCommentsScreen> {
       return true;
     } catch (error) {
       if (!mounted) return false;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -269,7 +267,7 @@ class _TeacherCommentsScreenState extends ConsumerState<TeacherCommentsScreen> {
         .user
         ?.id;
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.mc.background,
       child: CustomScrollView(
         controller: _scrollController,
         physics: const BouncingScrollPhysics(
@@ -278,18 +276,15 @@ class _TeacherCommentsScreenState extends ConsumerState<TeacherCommentsScreen> {
         slivers: [
           CupertinoSliverNavigationBar(
             largeTitle: Text(l10n.teacherCommentsTitle),
-            backgroundColor: CupertinoDynamicColor.resolve(
-              AppColors.background,
-              context,
-            ).withValues(alpha: 0.94),
+            backgroundColor: context.mc.background.withValues(alpha: 0.94),
             border: null,
             trailing: CupertinoButton(
               padding: EdgeInsets.zero,
               onPressed: _openSubmitDialog,
-              child: const Icon(
+              child: Icon(
                 CupertinoIcons.plus_circle_fill,
                 size: 28,
-                color: AppColors.primary,
+                color: context.mc.primary,
               ),
             ),
           ),
@@ -307,8 +302,8 @@ class _TeacherCommentsScreenState extends ConsumerState<TeacherCommentsScreen> {
                 key: const ValueKey('teacher-comments-search-field'),
                 controller: _searchController,
                 placeholder: l10n.teacherCommentsSearchPlaceholder,
-                borderRadius: BorderRadius.circular(AppRadii.md),
-                backgroundColor: AppColors.secondary,
+                borderRadius: BorderRadius.circular(McRadii.md),
+                backgroundColor: context.mc.secondary,
                 onSubmitted: (value) => _loadComments(value),
                 onChanged: (value) {
                   if (value.trim().isEmpty && _activeKeyword.isNotEmpty) {
@@ -326,7 +321,7 @@ class _TeacherCommentsScreenState extends ConsumerState<TeacherCommentsScreen> {
           else if (_comments.isEmpty)
             AppResponsiveSliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              child: AppEmptyState(
+              child: McEmpty.placeholder(
                 icon: _activeKeyword.isEmpty
                     ? CupertinoIcons.book
                     : CupertinoIcons.search,
@@ -464,7 +459,7 @@ class _SubmitDialogContent extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.all(12),
           padding: const EdgeInsets.all(16),
-          decoration: AppDecorations.card(context),
+          decoration: context.mc.cardDecoration(),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -475,7 +470,7 @@ class _SubmitDialogContent extends StatelessWidget {
                     Expanded(
                       child: Text(
                         l10n.teacherCommentsCreateTitle,
-                        style: AppTextStyles.sectionTitle(context),
+                        style: context.mc.textSection,
                       ),
                     ),
                     CupertinoButton(
@@ -489,7 +484,7 @@ class _SubmitDialogContent extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   l10n.teacherCommentsCreateSubtitle,
-                  style: AppTextStyles.muted(context),
+                  style: context.mc.textMuted,
                 ),
                 const SizedBox(height: 14),
                 if (!isAuthenticated)
@@ -502,13 +497,13 @@ class _SubmitDialogContent extends StatelessWidget {
                     ),
                   )
                 else ...[
-                  AppTextField(
+                  McField.text(
                     controller: teacherController,
                     placeholder: l10n.teacherCommentsTeacherPlaceholder,
                     prefix: const Icon(CupertinoIcons.person, size: 18),
                   ),
                   const SizedBox(height: 10),
-                  AppTextField(
+                  McField.text(
                     controller: courseController,
                     placeholder: l10n.teacherCommentsCoursePlaceholder,
                     prefix: const Icon(CupertinoIcons.book, size: 18),
@@ -518,14 +513,14 @@ class _SubmitDialogContent extends StatelessWidget {
                     children: [
                       Text(
                         l10n.teacherCommentsStarLabel,
-                        style: AppTextStyles.label(context),
+                        style: context.mc.textLabel,
                       ),
                       const SizedBox(width: 12),
                       _StarRating(value: star, onChanged: onStarChanged),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  AppTextField(
+                  McField.text(
                     controller: commentController,
                     placeholder: l10n.teacherCommentsCommentPlaceholder,
                     maxLines: 4,
@@ -535,7 +530,7 @@ class _SubmitDialogContent extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: CupertinoButton.filled(
-                      borderRadius: BorderRadius.circular(AppRadii.lg),
+                      borderRadius: BorderRadius.circular(McRadii.lg),
                       onPressed: isSubmitting ? null : onSubmit,
                       child: isSubmitting
                           ? const CupertinoActivityIndicator(
@@ -607,9 +602,8 @@ class _CommentCard extends StatelessWidget {
         ? comment.author!.name!.trim()
         : comment.userId;
 
-    return AppTappableCard(
+    return McCard.elevated(
       padding: EdgeInsets.zero,
-      radius: AppRadii.xl,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -638,7 +632,7 @@ class _CommentCard extends StatelessWidget {
                       ),
                       Text(
                         formatRelativeDateTime(comment.createdOn, l10n),
-                        style: AppTextStyles.label(context),
+                        style: context.mc.textLabel,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -650,10 +644,10 @@ class _CommentCard extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     minimumSize: Size.zero,
                     onPressed: () => _openActions(context),
-                    child: const Icon(
+                    child: Icon(
                       CupertinoIcons.ellipsis,
                       size: 20,
-                      color: AppColors.mutedForeground,
+                      color: context.mc.secondaryLabel,
                     ),
                   ),
               ],
@@ -666,14 +660,15 @@ class _CommentCard extends StatelessWidget {
               children: [
                 Text(
                   '${comment.teacherName} - ${comment.courseName}',
-                  style: AppTextStyles.sectionTitle(
-                    context,
-                  ).copyWith(fontSize: 18, height: 1.3),
+                  style: context.mc.textSection.copyWith(
+                    fontSize: 18,
+                    height: 1.3,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 10),
-                Text(commentText, style: AppTextStyles.body(context)),
+                Text(commentText, style: context.mc.textBody),
               ],
             ),
           ),
@@ -683,10 +678,7 @@ class _CommentCard extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: CupertinoDynamicColor.resolve(
-                    AppColors.border,
-                    context,
-                  ).withValues(alpha: 0.3),
+                  color: context.mc.border.withValues(alpha: 0.3),
                 ),
               ),
             ),
@@ -706,14 +698,8 @@ class _StarRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = CupertinoDynamicColor.resolve(
-      AppColors.primary,
-      context,
-    );
-    final inactiveColor = CupertinoDynamicColor.resolve(
-      AppColors.mutedForeground,
-      context,
-    ).withValues(alpha: 0.35);
+    final activeColor = context.mc.primary;
+    final inactiveColor = context.mc.secondaryLabel.withValues(alpha: 0.35);
     final isInteractive = onChanged != null;
 
     return Row(

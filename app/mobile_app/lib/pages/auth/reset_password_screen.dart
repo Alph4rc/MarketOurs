@@ -1,13 +1,11 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_fields.dart';
-import '../../ui/app_widgets.dart';
 import 'auth_scaffold.dart';
 import 'password_form_field.dart';
 
@@ -59,7 +57,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         return;
       }
 
-      await AppFeedback.showSuccess(context, message: AppLocalizations.of(context).passwordResetSuccess);
+      await McFeedback.showSuccess(
+        context,
+        message: AppLocalizations.of(context).passwordResetSuccess,
+      );
       if (!mounted) {
         return;
       }
@@ -70,7 +71,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           .asData
           ?.value
           .errorMessage;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: (errorMessage != null && errorMessage.isNotEmpty)
             ? errorMessage
@@ -99,12 +100,14 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            AppTextField(
+            McField.text(
               controller: _tokenController,
-              placeholder: AppLocalizations.of(context).validatorCodeRequiredToken,
+              placeholder: AppLocalizations.of(context)
+                  .validatorCodeRequiredToken,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return AppLocalizations.of(context).validatorCodeRequiredToken;
+                  return AppLocalizations.of(context)
+                      .validatorCodeRequiredToken;
                 }
                 return null;
               },
@@ -118,7 +121,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   return AppLocalizations.of(context).validatorPasswordRequired;
                 }
                 if (value.length < 6) {
-                  return AppLocalizations.of(context).validatorPasswordMinLength;
+                  return AppLocalizations.of(context)
+                      .validatorPasswordMinLength;
                 }
                 return null;
               },
@@ -129,15 +133,20 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               placeholder: AppLocalizations.of(context).authConfirmPassword,
               validator: (value) {
                 if (value != _passwordController.text) {
-                  return AppLocalizations.of(context).validatorConfirmPasswordMismatch;
+                  return AppLocalizations.of(context)
+                      .validatorConfirmPasswordMismatch;
                 }
                 return null;
               },
             ),
             const SizedBox(height: 24),
-            AppPrimaryButton(
+            McButton.primary(
               onPressed: isSubmitting ? null : _submit,
-              child: Text(isSubmitting ? AppLocalizations.of(context).profileSaving : AppLocalizations.of(context).authResetPassword),
+              child: Text(
+                isSubmitting
+                    ? AppLocalizations.of(context).profileSaving
+                    : AppLocalizations.of(context).authResetPassword,
+              ),
             ),
           ],
         ),

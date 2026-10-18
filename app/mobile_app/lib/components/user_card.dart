@@ -1,9 +1,9 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import 'package:mobile_app/models/user.dart';
 
-import '../ui/app_theme.dart';
-import '../ui/app_widgets.dart';
+import 'app_avatar.dart';
 
 class UserCard extends StatelessWidget {
   const UserCard({
@@ -27,11 +27,7 @@ class UserCard extends StatelessWidget {
     final content = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppAvatar(
-          url: user.avatar,
-          name: user.name,
-          size: 40,
-        ),
+        AppAvatar(url: user.avatar, name: user.name, size: 40),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -43,10 +39,7 @@ class UserCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: CupertinoDynamicColor.resolve(
-                    AppColors.foreground,
-                    context,
-                  ),
+                  color: context.mc.foreground,
                   fontSize: 14,
                 ),
               ),
@@ -57,10 +50,7 @@ class UserCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.mutedForeground,
-                      context,
-                    ),
+                    color: context.mc.secondaryLabel,
                     fontSize: 12,
                   ),
                 ),

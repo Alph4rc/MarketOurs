@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import 'package:mobile_app/l10n/app_localizations.dart';
+
 import '../../models/notification.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/post_feed_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/notification_service.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 import '../../utils/date_formatters.dart';
 import 'push_settings_screen.dart';
 
@@ -108,20 +108,20 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     }
   }
 
-  Color _getIconColor(NotificationType type) {
+  Color _getIconColor(BuildContext context, NotificationType type) {
     switch (type) {
       case NotificationType.commentReply:
-        return const Color(0xFF007AFF);
+        return context.mc.primary;
       case NotificationType.postReply:
-        return const Color(0xFF34C759);
+        return context.mc.success;
       case NotificationType.hotList:
-        return const Color(0xFFFF9500);
+        return context.mc.warning;
       case NotificationType.system:
-        return AppColors.mutedForeground;
+        return context.mc.secondaryLabel;
       case NotificationType.review:
-        return const Color(0xFFAF52DE);
+        return context.mc.purple;
       case NotificationType.unknown:
-        return AppColors.mutedForeground;
+        return context.mc.secondaryLabel;
     }
   }
 
@@ -135,7 +135,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     });
     final visibleNotifications = _visibleNotifications;
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.mc.background,
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),
@@ -143,10 +143,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         slivers: [
           CupertinoSliverNavigationBar(
             largeTitle: Text(AppLocalizations.of(context).tabNotifications),
-            backgroundColor: CupertinoDynamicColor.resolve(
-              AppColors.background,
-              context,
-            ).withValues(alpha: 0.94),
+            backgroundColor: context.mc.background.withValues(alpha: 0.94),
             border: null,
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
@@ -313,23 +310,23 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              color: AppColors.secondary,
+            decoration: BoxDecoration(
+              color: context.mc.secondary,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               CupertinoIcons.bell_slash,
               size: 32,
-              color: AppColors.mutedForeground,
+              color: context.mc.secondaryLabel,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context).notificationEmpty,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
-              color: AppColors.mutedForeground,
+              color: context.mc.secondaryLabel,
             ),
           ),
         ],
@@ -349,7 +346,8 @@ class _NotificationList extends StatelessWidget {
 
   final List<NotificationDto> notifications;
   final IconData Function(NotificationType type) iconForType;
-  final Color Function(NotificationType type) iconColorForType;
+  final Color Function(BuildContext context, NotificationType type)
+  iconColorForType;
   final String Function(DateTime? date, BuildContext context) formatDate;
   final Future<void> Function(NotificationDto notification) onOpen;
 
@@ -366,7 +364,7 @@ class _NotificationList extends StatelessWidget {
               child: _NotificationCard(
                 notification: entry.$2,
                 icon: iconForType(entry.$2.type),
-                iconColor: iconColorForType(entry.$2.type),
+                iconColor: iconColorForType(context, entry.$2.type),
                 formattedDate: formatDate(entry.$2.createdAt, context),
                 onPressed: () {
                   onOpen(entry.$2);
@@ -392,7 +390,7 @@ class _NotificationList extends StatelessWidget {
                 child: _NotificationCard(
                   notification: entry.$2,
                   icon: iconForType(entry.$2.type),
-                  iconColor: iconColorForType(entry.$2.type),
+                  iconColor: iconColorForType(context, entry.$2.type),
                   formattedDate: formatDate(entry.$2.createdAt, context),
                   onPressed: () {
                     onOpen(entry.$2);
@@ -423,9 +421,8 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppTappableCard(
+    return McCard.elevated(
       padding: const EdgeInsets.all(16),
-      radius: AppRadii.lg,
       onPressed: onPressed,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,8 +453,8 @@ class _NotificationCard extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
+                        decoration: BoxDecoration(
+                          color: context.mc.primary,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -475,9 +472,9 @@ class _NotificationCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   formattedDate,
-                  style: AppTextStyles.label(
-                    context,
-                  ).copyWith(fontWeight: FontWeight.w500),
+                  style: context.mc.textLabel.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -510,7 +507,7 @@ class _NotificationTitle extends StatelessWidget {
       style: TextStyle(
         fontSize: 16,
         fontWeight: isRead ? FontWeight.w600 : FontWeight.w800,
-        color: CupertinoDynamicColor.resolve(AppColors.foreground, context),
+        color: context.mc.foreground,
       ),
     );
   }
@@ -568,9 +565,7 @@ class _NotificationBodyV2 extends StatelessWidget {
             children: [
               Text(
                 header,
-                style: AppTextStyles.muted(
-                  context,
-                ).copyWith(fontSize: 14, height: 1.4),
+                style: context.mc.textMuted.copyWith(fontSize: 14, height: 1.4),
               ),
               const SizedBox(height: 4),
               for (final post in p.posts)
@@ -611,7 +606,7 @@ class _NotificationBodyV2 extends StatelessWidget {
   Widget _plainText(String text, BuildContext context) {
     return Text(
       text,
-      style: AppTextStyles.muted(context).copyWith(fontSize: 14, height: 1.4),
+      style: context.mc.textMuted.copyWith(fontSize: 14, height: 1.4),
       maxLines: 10,
       overflow: TextOverflow.ellipsis,
     );
@@ -635,7 +630,7 @@ class _HotPostLine extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             height: 1.5,
-            color: CupertinoDynamicColor.resolve(AppColors.primary, context),
+            color: context.mc.primary,
             fontWeight: FontWeight.w500,
           ),
         ),

@@ -902,6 +902,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  luamris_ui:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "v0.3.2"
+      resolved-ref: "56a71328671ed65dc004ee7b4305ec6f9cef0b9b"
+      url: "https://github.com/LumarisTeam/luamris_ui.git"
+    source: git
+    version: "0.3.2"
   matcher:
     dependency: transitive
     description:
@@ -1339,6 +1348,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  smooth_corner:
+    dependency: transitive
+    description:
+      name: smooth_corner
+      sha256: "112d7331f82ead81ec870c5d1eb0624f2e7e367eccd166c2fffe4c11d4f87c4f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
   source_gen:
     dependency: transitive
     description:
@@ -1717,4 +1734,4 @@ packages:
     version: "3.1.3"
 sdks:
   dart: ">=3.13.0 <4.0.0"
-  flutter: ">=3.47.0"
+  flutter: ">=3.47.7"

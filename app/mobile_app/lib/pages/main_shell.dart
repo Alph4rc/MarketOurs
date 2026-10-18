@@ -3,15 +3,14 @@ import 'dart:async';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/notification_provider.dart';
 import '../providers/post_feed_provider.dart';
-import '../ui/app_feedback.dart';
 import '../ui/app_responsive.dart';
-import '../ui/app_theme.dart';
 
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key, required this.navigationShell});
@@ -87,7 +86,7 @@ class _MainShellState extends ConsumerState<MainShell>
     _lastExitAttemptAt = now;
     unawaited(ref.read(homeFeedProvider.notifier).refresh());
     unawaited(
-      AppFeedback.showInfo(
+      McFeedback.showInfo(
         context,
         message: AppLocalizations.of(context).nextExit,
       ),
@@ -102,7 +101,7 @@ class _MainShellState extends ConsumerState<MainShell>
         !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
     final scaffold = CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.mc.background,
       child: isTablet
           ? Row(
               children: [
@@ -118,20 +117,14 @@ class _MainShellState extends ConsumerState<MainShell>
               children: [
                 Expanded(child: widget.navigationShell),
                 CupertinoTabBar(
-                  backgroundColor: CupertinoDynamicColor.resolve(
-                    AppColors.background,
-                    context,
-                  ).withValues(alpha: 0.8),
-                  activeColor: AppColors.primary,
-                  inactiveColor: AppColors.mutedForeground.withValues(
+                  backgroundColor: context.mc.background.withValues(alpha: 0.8),
+                  activeColor: context.mc.primary,
+                  inactiveColor: context.mc.secondaryLabel.withValues(
                     alpha: 0.8,
                   ),
                   border: Border(
                     top: BorderSide(
-                      color: CupertinoDynamicColor.resolve(
-                        AppColors.border,
-                        context,
-                      ).withValues(alpha: 0.3),
+                      color: context.mc.border.withValues(alpha: 0.3),
                       width: 0.5,
                     ),
                   ),
@@ -141,10 +134,12 @@ class _MainShellState extends ConsumerState<MainShell>
                       .map(
                         (entry) => BottomNavigationBarItem(
                           icon: _navigationIcon(
+                            context,
                             entry.$2.icon,
                             hasUnread: entry.$1 == 3 && unreadCount > 0,
                           ),
                           activeIcon: _navigationIcon(
+                            context,
                             entry.$2.activeIcon,
                             hasUnread: entry.$1 == 3 && unreadCount > 0,
                           ),
@@ -189,14 +184,8 @@ class _TabletSideNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = CupertinoDynamicColor.resolve(
-      AppColors.background,
-      context,
-    );
-    final borderColor = CupertinoDynamicColor.resolve(
-      AppColors.border,
-      context,
-    );
+    final backgroundColor = context.mc.background;
+    final borderColor = context.mc.border;
 
     return Container(
       key: const ValueKey('main-shell-tablet-side-navigation'),
@@ -247,13 +236,10 @@ class _TabletSideNavigationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foregroundColor = isSelected
-        ? AppColors.primary
-        : CupertinoDynamicColor.resolve(
-            AppColors.mutedForeground,
-            context,
-          ).withValues(alpha: 0.8);
+        ? context.mc.primary
+        : context.mc.secondaryLabel.withValues(alpha: 0.8);
     final Color? backgroundColor = isSelected
-        ? AppColors.primary.withValues(alpha: 0.12)
+        ? context.mc.primary.withValues(alpha: 0.12)
         : null;
 
     return Padding(
@@ -261,19 +247,20 @@ class _TabletSideNavigationItem extends StatelessWidget {
       child: CupertinoButton(
         minimumSize: Size.zero,
         padding: EdgeInsets.zero,
-        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderRadius: BorderRadius.circular(McRadii.md),
         onPressed: onPressed,
         child: Container(
           height: 64,
           width: double.infinity,
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(AppRadii.md),
+            borderRadius: BorderRadius.circular(McRadii.md),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _navigationIcon(
+                context,
                 isSelected ? item.activeIcon : item.icon,
                 hasUnread: hasUnread,
                 color: foregroundColor,
@@ -300,6 +287,7 @@ class _TabletSideNavigationItem extends StatelessWidget {
 }
 
 Widget _navigationIcon(
+  BuildContext context,
   IconData icon, {
   required bool hasUnread,
   Color? color,
@@ -318,9 +306,9 @@ Widget _navigationIcon(
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: CupertinoColors.systemRed,
+            color: context.mc.destructive,
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.background, width: 1.5),
+            border: Border.all(color: context.mc.background, width: 1.5),
           ),
         ),
       ),

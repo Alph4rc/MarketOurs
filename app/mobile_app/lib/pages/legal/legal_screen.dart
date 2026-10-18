@@ -1,8 +1,8 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
 
 class LegalScreen extends StatelessWidget {
   const LegalScreen({
@@ -22,29 +22,18 @@ class LegalScreen extends StatelessWidget {
     final contentMaxWidth = AppResponsive.contentMaxWidth(context);
 
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.mc.background,
       navigationBar: CupertinoNavigationBar(
         middle: Text(
           title,
           style: TextStyle(
-            color: CupertinoDynamicColor.resolve(
-              AppColors.foreground,
-              context,
-            ),
+            color: context.mc.foreground,
             fontWeight: FontWeight.w700,
           ),
         ),
-        backgroundColor: CupertinoDynamicColor.resolve(
-          AppColors.background,
-          context,
-        ).withValues(alpha: 0.82),
+        backgroundColor: context.mc.background.withValues(alpha: 0.82),
         border: Border(
-          bottom: BorderSide(
-            color: CupertinoDynamicColor.resolve(
-              AppColors.border,
-              context,
-            ).withValues(alpha: 0.35),
-          ),
+          bottom: BorderSide(color: context.mc.border.withValues(alpha: 0.35)),
         ),
       ),
       child: SafeArea(
@@ -56,8 +45,7 @@ class LegalScreen extends StatelessWidget {
               children: [
                 _buildHeader(context),
                 const SizedBox(height: 24),
-                for (final section in sections)
-                  _buildSection(context, section),
+                for (final section in sections) _buildSection(context, section),
               ],
             ),
           ),
@@ -81,13 +69,7 @@ class LegalScreen extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           AppLocalizations.of(context).lastUpdatedLabel(lastUpdated),
-          style: TextStyle(
-            fontSize: 13,
-            color: CupertinoDynamicColor.resolve(
-              AppColors.mutedForeground,
-              context,
-            ),
-          ),
+          style: TextStyle(fontSize: 13, color: context.mc.secondaryLabel),
         ),
       ],
     );
@@ -101,10 +83,7 @@ class LegalScreen extends StatelessWidget {
         children: [
           Text(
             section.title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           ...section.children,
@@ -152,10 +131,7 @@ class _LegalText extends StatelessWidget {
       style: TextStyle(
         fontSize: 15,
         height: 1.6,
-        color: CupertinoDynamicColor.resolve(
-          AppColors.mutedForeground,
-          context,
-        ),
+        color: context.mc.secondaryLabel,
       ),
     );
   }

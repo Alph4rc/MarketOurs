@@ -1,11 +1,9 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../providers/auth_provider.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 import '../../utils/dto_validation.dart';
 import '../auth/password_form_field.dart';
 
@@ -46,7 +44,7 @@ class _ChangePasswordSheetState extends ConsumerState<ChangePasswordSheet> {
       if (!mounted) {
         return;
       }
-      await AppFeedback.showSuccess(
+      await McFeedback.showSuccess(
         context,
         message: AppLocalizations.of(context).passwordChanged,
       );
@@ -60,7 +58,7 @@ class _ChangePasswordSheetState extends ConsumerState<ChangePasswordSheet> {
           .asData
           ?.value
           .errorMessage;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: (errorMessage != null && errorMessage.isNotEmpty)
             ? errorMessage
@@ -89,7 +87,7 @@ class _ChangePasswordSheetState extends ConsumerState<ChangePasswordSheet> {
           children: [
             Text(
               l10n.profileChangePasswordTitle,
-              style: AppTextStyles.sectionTitle(context),
+              style: context.mc.textSection,
             ),
             const SizedBox(height: 20),
             PasswordFormField(
@@ -128,7 +126,7 @@ class _ChangePasswordSheetState extends ConsumerState<ChangePasswordSheet> {
               },
             ),
             const SizedBox(height: 24),
-            AppPrimaryButton(
+            McButton.primary(
               onPressed: isSubmitting ? null : _submit,
               child: Text(isSubmitting ? l10n.profileSubmitting : l10n.save),
             ),

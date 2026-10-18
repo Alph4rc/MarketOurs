@@ -1,7 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../../../l10n/app_localizations.dart';
-import '../../../ui/app_widgets.dart';
 
 class PostDetailErrorView extends StatelessWidget {
   const PostDetailErrorView({
@@ -16,11 +16,15 @@ class PostDetailErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: AppRetryState(
-        title: AppLocalizations.of(context).detailLoadFailed,
-        description: message,
-        icon: CupertinoIcons.doc_text,
-        onRetry: onRetry,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: McEmpty.retry(
+          title: AppLocalizations.of(context).detailLoadFailed,
+          description: message,
+          icon: CupertinoIcons.doc_text,
+          onRetry: onRetry,
+          retryLabel: AppLocalizations.of(context).reload,
+        ),
       ),
     );
   }

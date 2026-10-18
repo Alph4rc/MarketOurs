@@ -1,9 +1,9 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../models/post.dart';
 import '../router/app_router.dart';
-import '../ui/app_theme.dart';
 
 class PostTagPill extends StatelessWidget {
   const PostTagPill({
@@ -20,18 +20,20 @@ class PostTagPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasTag = tag != null;
-    final label = tag?.name?.trim().isNotEmpty == true ? tag!.name!.trim() : emptyText;
+    final label = tag?.name?.trim().isNotEmpty == true
+        ? tag!.name!.trim()
+        : emptyText;
     final child = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: hasTag
-            ? AppColors.primary.withValues(alpha: 0.12)
-            : CupertinoDynamicColor.resolve(AppColors.secondary, context),
+            ? context.mc.primary.withValues(alpha: 0.12)
+            : context.mc.secondary,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
           color: hasTag
-              ? AppColors.primary.withValues(alpha: 0.28)
-              : CupertinoDynamicColor.resolve(AppColors.border, context),
+              ? context.mc.primary.withValues(alpha: 0.28)
+              : context.mc.border,
         ),
       ),
       child: Text(
@@ -39,9 +41,7 @@ class PostTagPill extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w700,
-          color: hasTag
-              ? AppColors.primary
-              : CupertinoDynamicColor.resolve(AppColors.mutedForeground, context),
+          color: hasTag ? context.mc.primary : context.mc.secondaryLabel,
         ),
       ),
     );

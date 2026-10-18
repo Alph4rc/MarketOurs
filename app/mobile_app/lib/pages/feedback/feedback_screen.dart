@@ -3,12 +3,8 @@ import 'dart:io';
 import 'package:feedback_sdk/feedback_sdk.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
-
-import '../../ui/app_feedback.dart';
-import '../../ui/app_fields.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 
 /// 匿名反馈表单页：描述 + 联系方式 + 图片（≤6）+ 字数统计 + 提交。
 class FeedbackScreen extends StatefulWidget {
@@ -45,7 +41,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final l10n = AppLocalizations.of(context);
     final remaining = _config.maxImageCount - _images.length;
     if (remaining <= 0) {
-      await AppFeedback.showError(context, message: l10n.feedbackImageTooMany);
+      await McFeedback.showError(context, message: l10n.feedbackImageTooMany);
       return;
     }
 
@@ -58,11 +54,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       });
       // 一次选超了会静默截断，这里补一句提示，避免用户困惑「怎么少了几张」。
       if (picked.length > remaining) {
-        await AppFeedback.showError(context, message: l10n.feedbackImageTooMany);
+        await McFeedback.showError(context, message: l10n.feedbackImageTooMany);
       }
     } catch (_) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: l10n.feedbackPickImageFailed,
       );
@@ -82,14 +78,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final contact = _contactController.text.trim();
 
     if (content.isEmpty) {
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: l10n.feedbackContentRequired,
       );
       return;
     }
     if (contact.isEmpty) {
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: l10n.feedbackContactRequired,
       );
@@ -102,10 +98,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       final attachmentIds = <int>[];
       for (final file in _images) {
         final bytes = await file.readAsBytes();
-        attachmentIds.add(await FeedbackSdk.instance.uploadImage(
-          filename: file.name,
-          raw: bytes,
-        ));
+        attachmentIds.add(
+          await FeedbackSdk.instance.uploadImage(
+            filename: file.name,
+            raw: bytes,
+          ),
+        );
       }
 
       // 复用同一 request_id 保证失败重试幂等。
@@ -119,17 +117,20 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       );
 
       if (!mounted) return;
-      await AppFeedback.showSuccess(context, message: l10n.feedbackSubmitSuccess);
+      await McFeedback.showSuccess(
+        context,
+        message: l10n.feedbackSubmitSuccess,
+      );
       if (!mounted) return;
       Navigator.of(context).pop();
     } on FeedbackException catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
-      await AppFeedback.showError(context, message: e.userMessage);
+      await McFeedback.showError(context, message: e.userMessage);
     } catch (e) {
       if (!mounted) return;
       setState(() => _submitting = false);
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: FeedbackApi.toFeedback(e).userMessage,
       );
@@ -141,18 +142,16 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final l10n = AppLocalizations.of(context);
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(l10n.feedbackTitle),
-      ),
+      navigationBar: CupertinoNavigationBar(middle: Text(l10n.feedbackTitle)),
       child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           children: [
-            Text(l10n.feedbackSubtitle, style: AppTextStyles.muted(context)),
+            Text(l10n.feedbackSubtitle, style: context.mc.textMuted),
             const SizedBox(height: 24),
             _fieldLabel(context, l10n.feedbackContentLabel, required: true),
             const SizedBox(height: 8),
-            AppTextField(
+            McField.text(
               controller: _contentController,
               placeholder: l10n.feedbackContentPlaceholder,
               maxLines: 6,
@@ -168,14 +167,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 padding: const EdgeInsets.only(top: 4, right: 4),
                 child: Text(
                   '$_contentLength/${_config.maxContentLength}',
-                  style: AppTextStyles.label(context),
+                  style: context.mc.textLabel,
                 ),
               ),
             ),
             const SizedBox(height: 20),
             _fieldLabel(context, l10n.feedbackContactLabel, required: true),
             const SizedBox(height: 8),
-            AppTextField(
+            McField.text(
               controller: _contactController,
               placeholder: l10n.feedbackContactPlaceholder,
               maxLength: _config.maxContactLength,
@@ -186,7 +185,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             const SizedBox(height: 8),
             _buildImageGrid(context),
             const SizedBox(height: 32),
-            AppPrimaryButton(
+            McButton.primary(
               onPressed: _submitting ? null : _submit,
               child: Text(_submitting ? l10n.feedbackSubmitting : l10n.submit),
             ),
@@ -203,15 +202,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }) {
     return Row(
       children: [
-        Text(text, style: AppTextStyles.label(context).copyWith(fontSize: 13)),
+        Text(text, style: context.mc.textLabel.copyWith(fontSize: 13)),
         if (required)
           Text(
             ' *',
             style: TextStyle(
-              color: CupertinoDynamicColor.resolve(
-                AppColors.destructive,
-                context,
-              ),
+              color: context.mc.destructive,
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
@@ -240,26 +236,18 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         width: 88,
         height: 88,
         decoration: BoxDecoration(
-          color: CupertinoDynamicColor.resolve(AppColors.secondary, context),
-          borderRadius: BorderRadius.circular(AppRadii.lg),
-          border: Border.all(
-            color: CupertinoDynamicColor.resolve(AppColors.border, context),
-          ),
+          color: context.mc.secondary,
+          borderRadius: BorderRadius.circular(McRadii.lg),
+          border: Border.all(color: context.mc.border),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              CupertinoIcons.plus,
-              color: CupertinoDynamicColor.resolve(
-                AppColors.mutedForeground,
-                context,
-              ),
-            ),
+            Icon(CupertinoIcons.plus, color: context.mc.secondaryLabel),
             const SizedBox(height: 4),
             Text(
               AppLocalizations.of(context).feedbackAddImage,
-              style: AppTextStyles.label(context).copyWith(fontSize: 11),
+              style: context.mc.textLabel.copyWith(fontSize: 11),
             ),
           ],
         ),
@@ -271,7 +259,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     return Stack(
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadii.lg),
+          borderRadius: BorderRadius.circular(McRadii.lg),
           child: Image.file(
             File(_images[index].path),
             width: 88,

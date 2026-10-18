@@ -1,9 +1,8 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 
 import '../models/post.dart';
-import '../ui/app_theme.dart';
-import '../ui/app_widgets.dart';
 import 'post_tag_pill.dart';
 
 Future<PostTagDto?> showPostTagPicker(
@@ -55,9 +54,8 @@ class PostTagSelectorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppTappableCard(
+    return McCard.elevated(
       padding: const EdgeInsets.all(20),
-      radius: AppRadii.lg,
       onPressed: enabled ? onPressed : null,
       child: Row(
         children: [
@@ -81,8 +79,8 @@ class PostTagSelectorCard extends StatelessWidget {
             CupertinoIcons.chevron_down,
             size: 18,
             color: enabled
-                ? AppColors.mutedForeground
-                : AppColors.mutedForeground.withValues(alpha: 0.5),
+                ? context.mc.secondaryLabel
+                : context.mc.secondaryLabel.withValues(alpha: 0.5),
           ),
         ],
       ),
@@ -112,7 +110,7 @@ class PostTagInlineSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(label, style: AppTextStyles.label(context)),
+        Text(label, style: context.mc.textLabel),
         const SizedBox(width: 10),
         GestureDetector(
           behavior: HitTestBehavior.opaque,

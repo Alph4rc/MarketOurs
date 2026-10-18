@@ -3,17 +3,16 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../l10n/app_localizations.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/auth_service.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 
 class OAuthWebViewScreen extends ConsumerStatefulWidget {
   const OAuthWebViewScreen({
@@ -54,7 +53,11 @@ class _OAuthWebViewScreenState extends ConsumerState<OAuthWebViewScreen> {
       _handleIncomingUri,
       onError: (_) {
         if (mounted && !_callbackHandled) {
-          setState(() => _statusMessage = AppLocalizations.of(context).oauthWebViewCantReceive);
+          setState(
+            () =>
+                _statusMessage = AppLocalizations.of(context)
+                    .oauthWebViewCantReceive,
+          );
         }
       },
     );
@@ -83,7 +86,9 @@ class _OAuthWebViewScreenState extends ConsumerState<OAuthWebViewScreen> {
 
       setState(() {
         _isLaunching = false;
-        _statusMessage = launched ? null : AppLocalizations.of(context).oauthWebViewCantOpenBrowser;
+        _statusMessage = launched
+            ? null
+            : AppLocalizations.of(context).oauthWebViewCantOpenBrowser;
       });
     } catch (_) {
       if (!mounted || _callbackHandled) return;
@@ -126,7 +131,8 @@ class _OAuthWebViewScreenState extends ConsumerState<OAuthWebViewScreen> {
     final message = uri.queryParameters['message'];
     final isBindSuccess =
         message != null &&
-        (message.contains(AppLocalizations.of(context).commentBindingSuccess) || message.contains('Binding successful'));
+        (message.contains(AppLocalizations.of(context).commentBindingSuccess) ||
+            message.contains('Binding successful'));
     if (isBindSuccess) {
       _handleBindSuccess();
       return;
@@ -147,7 +153,10 @@ class _OAuthWebViewScreenState extends ConsumerState<OAuthWebViewScreen> {
     try {
       await ref.read(authControllerProvider.notifier).refreshProfile();
       if (!mounted) return;
-      await AppFeedback.showSuccess(context, message: AppLocalizations.of(context).commentBindingSuccess);
+      await McFeedback.showSuccess(
+        context,
+        message: AppLocalizations.of(context).commentBindingSuccess,
+      );
       if (!mounted) return;
       context.pop();
     } catch (_) {
@@ -168,7 +177,10 @@ class _OAuthWebViewScreenState extends ConsumerState<OAuthWebViewScreen> {
       if (!mounted) return;
 
       if (success) {
-        await AppFeedback.showSuccess(context, message: AppLocalizations.of(context).authLoginSuccess);
+        await McFeedback.showSuccess(
+          context,
+          message: AppLocalizations.of(context).authLoginSuccess,
+        );
         if (!mounted) return;
         context.go(AppRoutePaths.home);
       } else {
@@ -183,7 +195,7 @@ class _OAuthWebViewScreenState extends ConsumerState<OAuthWebViewScreen> {
   }
 
   void _fail(String message) {
-    AppFeedback.showError(context, message: message);
+    McFeedback.showError(context, message: message);
     if (mounted) {
       context.pop();
     }
@@ -215,7 +227,9 @@ class _OAuthWebViewScreenState extends ConsumerState<OAuthWebViewScreen> {
               const CupertinoActivityIndicator(radius: 16),
               const SizedBox(height: 20),
               Text(
-                _isLaunching ? l10n.oauthWebViewOpenBrowser : l10n.oauthWebViewAuthorizeInBrowser,
+                _isLaunching
+                    ? l10n.oauthWebViewOpenBrowser
+                    : l10n.oauthWebViewAuthorizeInBrowser,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
@@ -226,12 +240,16 @@ class _OAuthWebViewScreenState extends ConsumerState<OAuthWebViewScreen> {
               Text(
                 _statusMessage ?? l10n.oauthWebViewAutoReturn,
                 textAlign: TextAlign.center,
-                style: AppTextStyles.muted(context),
+                style: context.mc.textMuted,
               ),
               const SizedBox(height: 28),
-              AppPrimaryButton(
+              McButton.primary(
                 onPressed: _isLaunching ? null : _startOAuth,
-                child: Text(_isLaunching ? AppLocalizations.of(context).oauthWebViewOpening : AppLocalizations.of(context).oauthWebViewReopen),
+                child: Text(
+                  _isLaunching
+                      ? AppLocalizations.of(context).oauthWebViewOpening
+                      : AppLocalizations.of(context).oauthWebViewReopen,
+                ),
               ),
               const SizedBox(height: 12),
               CupertinoButton(

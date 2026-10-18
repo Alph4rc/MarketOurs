@@ -41,6 +41,10 @@ dependencies:
   flutter_image_compress: ^2.4.0
   cached_network_image: ^3.4.1
   flutter_cache_manager: ^3.4.1
+  luamris_ui:
+    git:
+      url: https://github.com/LumarisTeam/luamris_ui.git
+      ref: v0.3.2
   feedback_sdk:
     git:
       url: https://github.com/LumarisTeam/feedback_sdk.git

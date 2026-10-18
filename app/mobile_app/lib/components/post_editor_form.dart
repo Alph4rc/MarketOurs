@@ -1,14 +1,13 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:mobile_app/utils/dto_validation.dart';
+
 import 'editable_image_wrap.dart';
 import '../models/post.dart';
-import '../ui/app_fields.dart';
 import '../ui/app_responsive.dart';
-import '../ui/app_theme.dart';
-import '../ui/app_widgets.dart';
 import 'post_tag_selector.dart';
 
 enum PostEditorLayout { page, sheet }
@@ -83,7 +82,7 @@ class PostEditorForm extends StatelessWidget {
                 _buildUploadProgress(context),
               ],
               const SizedBox(height: 20),
-              AppPrimaryButton(onPressed: onSubmit, child: Text(submitLabel)),
+              McButton.primary(onPressed: onSubmit, child: Text(submitLabel)),
             ],
           ),
         ),
@@ -96,7 +95,7 @@ class PostEditorForm extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (headerText != null) ...[
-            Text(headerText!, style: AppTextStyles.sectionTitle(context)),
+            Text(headerText!, style: context.mc.textSection),
             const SizedBox(height: 16),
           ],
           _buildEditorCard(context),
@@ -109,7 +108,7 @@ class PostEditorForm extends StatelessWidget {
             _buildUploadProgress(context),
           ],
           const SizedBox(height: 20),
-          AppPrimaryButton(onPressed: onSubmit, child: Text(submitLabel)),
+          McButton.primary(onPressed: onSubmit, child: Text(submitLabel)),
         ],
       ),
     );
@@ -120,19 +119,18 @@ class PostEditorForm extends StatelessWidget {
         ? (AppResponsive.isDesktop(context) ? 12 : 8)
         : 6;
 
-    return AppTappableCard(
+    return McCard.elevated(
       padding: const EdgeInsets.all(20),
-      radius: AppRadii.lg,
       child: Column(
         children: [
-          AppTextField(
+          McField.text(
             controller: titleController,
             placeholder: AppLocalizations.of(context).postCreateTitle,
             maxLength: DtoLimits.postTitleMax,
             validator: titleValidator,
           ),
           const SizedBox(height: 16),
-          AppTextField(
+          McField.text(
             controller: contentController,
             placeholder: AppLocalizations.of(context).postCreateContent,
             maxLines: contentMaxLines,
@@ -150,9 +148,8 @@ class PostEditorForm extends StatelessWidget {
         ? reorderableEntries!.isNotEmpty
         : (existingImages.isNotEmpty || localImages.isNotEmpty);
 
-    return AppTappableCard(
+    return McCard.elevated(
       padding: const EdgeInsets.all(20),
-      radius: AppRadii.lg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -185,20 +182,12 @@ class PostEditorForm extends StatelessWidget {
               height: 120,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: CupertinoDynamicColor.resolve(
-                  AppColors.secondary,
-                  context,
-                ),
-                borderRadius: BorderRadius.circular(AppRadii.md),
+                color: context.mc.secondary,
+                borderRadius: BorderRadius.circular(McRadii.md),
               ),
               child: Text(
                 AppLocalizations.of(context).postCreateNoImages,
-                style: TextStyle(
-                  color: CupertinoDynamicColor.resolve(
-                    AppColors.mutedForeground,
-                    context,
-                  ),
-                ),
+                style: TextStyle(color: context.mc.secondaryLabel),
               ),
             )
           else if (useReorderable)
@@ -238,9 +227,8 @@ class PostEditorForm extends StatelessWidget {
   Widget _buildUploadProgress(BuildContext context) {
     final fraction = uploadProgress ?? 0;
     final percent = (fraction * 100).round();
-    return AppTappableCard(
+    return McCard.elevated(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      radius: AppRadii.lg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -249,9 +237,9 @@ class PostEditorForm extends StatelessWidget {
             children: [
               Text(
                 AppLocalizations.of(context).postUploading,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.mutedForeground,
+                  color: context.mc.secondaryLabel,
                 ),
               ),
               Text(
@@ -265,14 +253,14 @@ class PostEditorForm extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadii.sm),
+            borderRadius: BorderRadius.circular(McRadii.sm),
             child: Container(
               height: 6,
-              color: AppColors.secondary,
+              color: context.mc.secondary,
               alignment: Alignment.centerLeft,
               child: FractionallySizedBox(
                 widthFactor: fraction,
-                child: Container(height: 6, color: AppColors.primary),
+                child: Container(height: 6, color: context.mc.primary),
               ),
             ),
           ),

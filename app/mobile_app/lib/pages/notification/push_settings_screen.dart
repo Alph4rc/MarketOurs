@@ -1,12 +1,11 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import 'package:mobile_app/l10n/app_localizations.dart';
+
 import '../../models/notification.dart';
 import '../../services/notification_service.dart';
-import '../../ui/app_feedback.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 
 class PushSettingsScreen extends StatefulWidget {
   final NotificationService service;
@@ -57,12 +56,12 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
 
     if (mounted) {
       if (success) {
-        await AppFeedback.showSuccess(
+        await McFeedback.showSuccess(
           context,
           message: AppLocalizations.of(context).notificationSaved,
         );
       } else {
-        await AppFeedback.showError(
+        await McFeedback.showError(
           context,
           message: AppLocalizations.of(context).notificationSaveFailed,
         );
@@ -72,9 +71,9 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppPageScaffold(
+    return McPageScaffold(
       title: AppLocalizations.of(context).notificationPushSettings,
-      navigationBarStyle: AppNavigationBarStyle.compact,
+      navigationBarStyle: McNavigationBarStyle.compact,
       maxContentWidth: AppResponsive.readableMaxWidth(context, fallback: 720),
       child: _isLoading
           ? const Center(child: CupertinoActivityIndicator())
@@ -90,7 +89,8 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
                 const SizedBox(height: 12),
                 _buildSwitchTile(
                   title: AppLocalizations.of(context).notificationCommentPush,
-                  subtitle: AppLocalizations.of(context).notificationCommentPushDesc,
+                  subtitle: AppLocalizations.of(context)
+                      .notificationCommentPushDesc,
                   value: _commentReplyEnabled,
                   onChanged: (val) =>
                       setState(() => _commentReplyEnabled = val),
@@ -99,13 +99,14 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
                 const SizedBox(height: 12),
                 _buildSwitchTile(
                   title: AppLocalizations.of(context).notificationHotListPush,
-                  subtitle: AppLocalizations.of(context).notificationHotListPushDesc,
+                  subtitle: AppLocalizations.of(context)
+                      .notificationHotListPushDesc,
                   value: _hotListEnabled,
                   onChanged: (val) => setState(() => _hotListEnabled = val),
                   icon: CupertinoIcons.flame,
                 ),
                 const SizedBox(height: 28),
-                AppPrimaryButton(
+                McButton.primary(
                   onPressed: _isSaving ? null : _saveSettings,
                   child: Text(
                     _isSaving
@@ -128,7 +129,7 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: CupertinoDynamicColor.resolve(AppColors.secondary, context),
+        color: context.mc.secondary,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
@@ -137,17 +138,10 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: CupertinoDynamicColor.resolve(
-                AppColors.secondary,
-                context,
-              ).withValues(alpha: 0.5),
+              color: context.mc.secondary.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              size: 20,
-              color: CupertinoDynamicColor.resolve(AppColors.primary, context),
-            ),
+            child: Icon(icon, size: 20, color: context.mc.primary),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -162,10 +156,7 @@ class _PushSettingsScreenState extends State<PushSettingsScreen> {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.mutedForeground,
-                      context,
-                    ),
+                    color: context.mc.secondaryLabel,
                     fontSize: 13,
                     height: 1.4,
                   ),

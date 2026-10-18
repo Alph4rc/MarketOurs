@@ -1,14 +1,14 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../../../l10n/app_localizations.dart';
+import '../../../components/app_avatar.dart';
 import '../../../components/app_network_image.dart';
 import '../../../components/post_tag_pill.dart';
 import '../../../models/post.dart';
 import '../../../router/app_router.dart';
-import '../../../ui/app_theme.dart';
-import '../../../ui/app_widgets.dart';
 import '../../../utils/date_formatters.dart';
 import '../image_viewer_screen.dart';
 
@@ -61,7 +61,9 @@ class PostDetailHero extends StatelessWidget {
                                 children: [
                                   Flexible(
                                     child: Text(
-                                      post.author?.name ?? AppLocalizations.of(context).anonymousUser,
+                                      post.author?.name ??
+                                          AppLocalizations.of(context)
+                                              .anonymousUser,
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
@@ -73,9 +75,9 @@ class PostDetailHero extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   Text(
                                     'IP属地: ${post.ipLocation?.isNotEmpty == true ? post.ipLocation! : '未知'}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.mutedForeground,
+                                      color: context.mc.secondaryLabel,
                                     ),
                                   ),
                                 ],
@@ -98,10 +100,7 @@ class PostDetailHero extends StatelessWidget {
                                 ),
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: CupertinoDynamicColor.resolve(
-                                    AppColors.mutedForeground,
-                                    context,
-                                  ),
+                                  color: context.mc.secondaryLabel,
                                 ),
                               ),
                             ],
@@ -111,7 +110,7 @@ class PostDetailHero extends StatelessWidget {
                     ),
                   ),
                 ),
-                AppSecondaryButton(
+                McButton.secondary(
                   onPressed: isMe ? onAuthorTap : onFollowToggle,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -126,7 +125,7 @@ class PostDetailHero extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       color: isFollowingAuthor && !isMe
-                          ? AppColors.mutedForeground
+                          ? context.mc.secondaryLabel
                           : null,
                     ),
                   ),
@@ -135,17 +134,22 @@ class PostDetailHero extends StatelessWidget {
             ),
           ),
         Text(
-          post.title?.trim().isNotEmpty == true ? post.title!.trim() : AppLocalizations.of(context).postUnnamed,
+          post.title?.trim().isNotEmpty == true
+              ? post.title!.trim()
+              : AppLocalizations.of(context).postUnnamed,
           style: TextStyle(
             fontSize: 22,
             height: 1.3,
             fontWeight: FontWeight.w700,
-            color: CupertinoDynamicColor.resolve(AppColors.foreground, context),
+            color: context.mc.foreground,
           ),
         ),
         if (post.tag != null) ...[
           const SizedBox(height: 12),
-          PostTagPill(tag: post.tag, emptyText: AppLocalizations.of(context).postCreateNoTag),
+          PostTagPill(
+            tag: post.tag,
+            emptyText: AppLocalizations.of(context).postCreateNoTag,
+          ),
         ],
         const SizedBox(height: 16),
         Text(
@@ -155,10 +159,7 @@ class PostDetailHero extends StatelessWidget {
           style: TextStyle(
             fontSize: 17,
             height: 1.6,
-            color: CupertinoDynamicColor.resolve(
-              AppColors.foreground,
-              context,
-            ).withValues(alpha: 0.9),
+            color: context.mc.foreground.withValues(alpha: 0.9),
           ),
         ),
         if (post.images?.isNotEmpty == true) ...[
@@ -183,12 +184,9 @@ class PostDetailHero extends StatelessWidget {
                   child: Hero(
                     tag: 'image_${post.images?[itemIndex]}',
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(AppRadii.lg),
+                      borderRadius: BorderRadius.circular(McRadii.lg),
                       child: ColoredBox(
-                        color: CupertinoDynamicColor.resolve(
-                          AppColors.secondary,
-                          context,
-                        ),
+                        color: context.mc.secondary,
                         child: AppNetworkImage(
                           url: post.images?[itemIndex] ?? '',
                           width: double.infinity,
@@ -197,10 +195,10 @@ class PostDetailHero extends StatelessWidget {
                           errorPlaceholder: Container(
                             height: 200,
                             width: double.infinity,
-                            color: AppColors.muted,
-                            child: const Icon(
+                            color: context.mc.muted,
+                            child: Icon(
                               CupertinoIcons.photo,
-                              color: AppColors.mutedForeground,
+                              color: context.mc.secondaryLabel,
                             ),
                           ),
                         ),

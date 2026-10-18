@@ -1,17 +1,14 @@
 import 'dart:async';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../components/slider_captcha.dart';
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_fields.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
-import '../../components/slider_captcha.dart';
 import 'auth_scaffold.dart';
 
 class RegisterVerifyScreen extends ConsumerStatefulWidget {
@@ -93,7 +90,7 @@ class _RegisterVerifyScreenState extends ConsumerState<RegisterVerifyScreen> {
           .asData
           ?.value
           .errorMessage;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: (errorMessage != null && errorMessage.isNotEmpty)
             ? errorMessage
@@ -136,7 +133,10 @@ class _RegisterVerifyScreenState extends ConsumerState<RegisterVerifyScreen> {
 
       if (!mounted) return;
 
-      await AppFeedback.showSuccess(context, message: AppLocalizations.of(context).registerComplete);
+      await McFeedback.showSuccess(
+        context,
+        message: AppLocalizations.of(context).registerComplete,
+      );
       if (!mounted) return;
       context.go(AppRoutePaths.login);
     } catch (_) {
@@ -146,7 +146,7 @@ class _RegisterVerifyScreenState extends ConsumerState<RegisterVerifyScreen> {
           .asData
           ?.value
           .errorMessage;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: (errorMessage != null && errorMessage.isNotEmpty)
             ? errorMessage
@@ -182,8 +182,9 @@ class _RegisterVerifyScreenState extends ConsumerState<RegisterVerifyScreen> {
             if (widget.account != null && widget.account!.isNotEmpty) ...[
               Center(
                 child: Text(
-                  AppLocalizations.of(context).codeSentToAccount(widget.account!),
-                  style: AppTextStyles.label(context),
+                  AppLocalizations.of(context)
+                      .codeSentToAccount(widget.account!),
+                  style: context.mc.textLabel,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -191,13 +192,13 @@ class _RegisterVerifyScreenState extends ConsumerState<RegisterVerifyScreen> {
             ],
 
             // Code input
-            AppTextField(
+            McField.text(
               controller: _codeController,
               placeholder: '------',
               keyboardType: TextInputType.number,
               prefix: Icon(
                 CupertinoIcons.shield_fill,
-                color: AppColors.mutedForeground,
+                color: context.mc.secondaryLabel,
                 size: 18,
               ),
               validator: (value) {
@@ -218,22 +219,29 @@ class _RegisterVerifyScreenState extends ConsumerState<RegisterVerifyScreen> {
                 onPressed: isSubmitting || _countdown > 0 ? null : _resendCode,
                 padding: EdgeInsets.zero,
                 child: Text(
-                  _countdown > 0 ? AppLocalizations.of(context).codeResendAfterSeconds(_countdown) : AppLocalizations.of(context).authResendCode,
+                  _countdown > 0
+                      ? AppLocalizations.of(context)
+                            .codeResendAfterSeconds(_countdown)
+                      : AppLocalizations.of(context).authResendCode,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: _countdown > 0
-                        ? AppColors.mutedForeground
-                        : AppColors.primary,
+                        ? context.mc.secondaryLabel
+                        : context.mc.primary,
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            AppPrimaryButton(
+            McButton.primary(
               onPressed: isSubmitting || !_isCodeValid ? null : _submit,
-              child: Text(isSubmitting ? AppLocalizations.of(context).profileSaving : AppLocalizations.of(context).submit),
+              child: Text(
+                isSubmitting
+                    ? AppLocalizations.of(context).profileSaving
+                    : AppLocalizations.of(context).submit,
+              ),
             ),
           ],
         ),

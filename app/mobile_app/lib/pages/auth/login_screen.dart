@@ -2,18 +2,15 @@ import 'dart:async';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/gestures.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../components/slider_captcha.dart';
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/error_messages.dart';
-import '../../ui/app_feedback.dart';
-import '../../ui/app_fields.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
-import '../../components/slider_captcha.dart';
 import 'auth_scaffold.dart';
 import 'password_form_field.dart';
 
@@ -49,7 +46,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _sendCode() async {
     final account = _accountController.text.trim();
     if (account.isEmpty) {
-      await AppFeedback.showError(context, message: AppLocalizations.of(context).validatorAccountRequired);
+      await McFeedback.showError(
+        context,
+        message: AppLocalizations.of(context).validatorAccountRequired,
+      );
       return;
     }
 
@@ -63,10 +63,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           .sendLoginCode(account: account, captchaToken: captchaToken);
       if (!mounted) return;
       _startCountdown();
-      await AppFeedback.showSuccess(context, message: AppLocalizations.of(context).authSendCodeSuccess);
+      await McFeedback.showSuccess(
+        context,
+        message: AppLocalizations.of(context).authSendCodeSuccess,
+      );
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -131,7 +134,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
 
     if (!_agreedToTerms) {
-      await AppFeedback.showError(context, message: AppLocalizations.of(context).authMustAgreeTerms);
+      await McFeedback.showError(
+        context,
+        message: AppLocalizations.of(context).authMustAgreeTerms,
+      );
       return;
     }
 
@@ -153,7 +159,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.read(authControllerProvider).asData?.value;
     final errorMessage = authState?.errorMessage;
     if (success) {
-      await AppFeedback.showSuccess(context, message: AppLocalizations.of(context).authLoginSuccess);
+      await McFeedback.showSuccess(
+        context,
+        message: AppLocalizations.of(context).authLoginSuccess,
+      );
       if (!mounted) {
         return;
       }
@@ -164,7 +173,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final fallbackMessage = _loginMode == _LoginMode.password
         ? AppLocalizations.of(context).loginFailedCheckAccount
         : AppLocalizations.of(context).loginFailedCheckCode;
-    await AppFeedback.showError(
+    await McFeedback.showError(
       context,
       message: (errorMessage != null && errorMessage.isNotEmpty)
           ? errorMessage
@@ -201,19 +210,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 if (value != null) setState(() => _loginMode = value);
               },
               children: {
-                _LoginMode.password: Text(AppLocalizations.of(context).authPasswordLogin),
-                _LoginMode.otp: Text(AppLocalizations.of(context).authCodeLogin),
+                _LoginMode.password: Text(
+                  AppLocalizations.of(context).authPasswordLogin,
+                ),
+                _LoginMode.otp: Text(
+                  AppLocalizations.of(context).authCodeLogin,
+                ),
               },
             ),
             const SizedBox(height: 24),
-            Text(AppLocalizations.of(context).authAccount, style: AppTextStyles.label(context)),
+            Text(
+              AppLocalizations.of(context).authAccount,
+              style: context.mc.textLabel,
+            ),
             const SizedBox(height: 8),
-            AppTextField(
+            McField.text(
               controller: _accountController,
               placeholder: AppLocalizations.of(context).authAccountPlaceholder,
               prefix: Icon(
                 CupertinoIcons.mail,
-                color: AppColors.mutedForeground,
+                color: context.mc.secondaryLabel,
                 size: 18,
               ),
               textInputAction: _loginMode == _LoginMode.password
@@ -231,7 +247,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(AppLocalizations.of(context).authPassword, style: AppTextStyles.label(context)),
+                  Text(
+                    AppLocalizations.of(context).authPassword,
+                    style: context.mc.textLabel,
+                  ),
                   CupertinoButton(
                     padding: EdgeInsets.zero,
                     minimumSize: Size.zero,
@@ -241,7 +260,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Text(
                       AppLocalizations.of(context).authForgotPasswordPrompt,
                       style: TextStyle(
-                        color: AppColors.primary,
+                        color: context.mc.primary,
                         fontWeight: FontWeight.w700,
                         fontSize: 12,
                       ),
@@ -252,34 +271,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(height: 8),
               PasswordFormField(
                 controller: _passwordController,
-                placeholder: AppLocalizations.of(context).validatorPasswordRequired,
+                placeholder: AppLocalizations.of(context)
+                    .validatorPasswordRequired,
                 onFieldSubmitted: (_) => isSubmitting ? null : _submit(),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context).validatorPasswordRequired;
+                    return AppLocalizations.of(context)
+                        .validatorPasswordRequired;
                   }
                   return null;
                 },
               ),
             ] else ...[
-              Text(AppLocalizations.of(context).authVerificationCode, style: AppTextStyles.label(context)),
+              Text(
+                AppLocalizations.of(context).authVerificationCode,
+                style: context.mc.textLabel,
+              ),
               const SizedBox(height: 8),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: AppTextField(
+                    child: McField.text(
                       controller: _otpController,
-                      placeholder: AppLocalizations.of(context).authCodePlaceholder,
+                      placeholder: AppLocalizations.of(context)
+                          .authCodePlaceholder,
                       keyboardType: TextInputType.number,
                       prefix: Icon(
                         CupertinoIcons.shield_fill,
-                        color: AppColors.mutedForeground,
+                        color: context.mc.secondaryLabel,
                         size: 18,
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return AppLocalizations.of(context).validatorCodeRequired;
+                          return AppLocalizations.of(context)
+                              .validatorCodeRequired;
                         }
                         return null;
                       },
@@ -288,7 +314,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(width: 12),
                   SizedBox(
                     height: 48,
-                    child: AppSecondaryButton(
+                    child: McButton.secondary(
                       onPressed:
                           isSubmitting || _isSendingCode || _countdown > 0
                           ? null
@@ -315,9 +341,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
-                    _agreedToTerms ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle,
+                    _agreedToTerms
+                        ? CupertinoIcons.checkmark_circle_fill
+                        : CupertinoIcons.circle,
                     size: 20,
-                    color: _agreedToTerms ? AppColors.primary : AppColors.mutedForeground,
+                    color: _agreedToTerms
+                        ? context.mc.primary
+                        : context.mc.secondaryLabel,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -325,28 +355,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       text: TextSpan(
                         style: TextStyle(
                           fontSize: 12,
-                          color: CupertinoDynamicColor.resolve(AppColors.mutedForeground, context),
+                          color: context.mc.secondaryLabel,
                         ),
                         children: [
-                          TextSpan(text: '${AppLocalizations.of(context).authAgreeToTermsPrefix} '),
+                          TextSpan(
+                            text:
+                                '${AppLocalizations.of(context).authAgreeToTermsPrefix} ',
+                          ),
                           TextSpan(
                             text: AppLocalizations.of(context).termsOfService,
                             style: TextStyle(
-                              color: CupertinoDynamicColor.resolve(AppColors.primary, context),
+                              color: context.mc.primary,
                               fontWeight: FontWeight.w600,
                             ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => context.push(AppRoutePaths.terms),
                           ),
-                          TextSpan(text: ' ${AppLocalizations.of(context).authAnd} '),
+                          TextSpan(
+                            text: ' ${AppLocalizations.of(context).authAnd} ',
+                          ),
                           TextSpan(
                             text: AppLocalizations.of(context).privacyPolicy,
                             style: TextStyle(
-                              color: CupertinoDynamicColor.resolve(AppColors.primary, context),
+                              color: context.mc.primary,
                               fontWeight: FontWeight.w600,
                             ),
                             recognizer: TapGestureRecognizer()
-                              ..onTap = () => context.push(AppRoutePaths.privacy),
+                              ..onTap = () =>
+                                  context.push(AppRoutePaths.privacy),
                           ),
                         ],
                       ),
@@ -357,9 +393,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
             const SizedBox(height: 20),
 
-            AppPrimaryButton(
+            McButton.primary(
               onPressed: isSubmitting || !_agreedToTerms ? null : _submit,
-              child: Text(isSubmitting ? AppLocalizations.of(context).profileSaving : AppLocalizations.of(context).authLogin),
+              child: Text(
+                isSubmitting
+                    ? AppLocalizations.of(context).profileSaving
+                    : AppLocalizations.of(context).authLogin,
+              ),
             ),
             const SizedBox(height: 32),
             Row(
@@ -367,28 +407,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Expanded(
                   child: Container(
                     height: 1,
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.border,
-                      context,
-                    ).withValues(alpha: 0.3),
+                    color: context.mc.border.withValues(alpha: 0.3),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     AppLocalizations.of(context).oauthOtherMethods,
-                    style: AppTextStyles.label(
-                      context,
-                    ).copyWith(fontSize: 11, letterSpacing: 1.2),
+                    style: context.mc.textLabel.copyWith(
+                      fontSize: 11,
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
                 Expanded(
                   child: Container(
                     height: 1,
-                    color: CupertinoDynamicColor.resolve(
-                      AppColors.border,
-                      context,
-                    ).withValues(alpha: 0.3),
+                    color: context.mc.border.withValues(alpha: 0.3),
                   ),
                 ),
               ],
@@ -445,25 +480,15 @@ class _SocialButton extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               border: Border.all(
-                color: CupertinoDynamicColor.resolve(
-                  AppColors.border,
-                  context,
-                ).withValues(alpha: 0.5),
+                color: context.mc.border.withValues(alpha: 0.5),
               ),
-              borderRadius: BorderRadius.circular(AppRadii.md),
+              borderRadius: BorderRadius.circular(McRadii.md),
             ),
-            child: Icon(
-              icon,
-              size: 24,
-              color: CupertinoDynamicColor.resolve(
-                AppColors.foreground,
-                context,
-              ),
-            ),
+            child: Icon(icon, size: 24, color: context.mc.foreground),
           ),
         ),
         const SizedBox(height: 6),
-        Text(label, style: AppTextStyles.label(context).copyWith(fontSize: 10)),
+        Text(label, style: context.mc.textLabel.copyWith(fontSize: 10)),
       ],
     );
   }

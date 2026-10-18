@@ -4,13 +4,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:gal/gal.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../components/app_network_image.dart';
 import '../../l10n/app_localizations.dart';
-import '../../ui/app_feedback.dart';
 
 class ImageViewerScreen extends StatefulWidget {
   const ImageViewerScreen({
@@ -87,9 +87,8 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
     }
 
     _resolvingImages.add(imageUrl);
-    final stream = CachedNetworkImageProvider(
-      imageUrl,
-    ).resolve(createLocalImageConfiguration(context));
+    final stream = CachedNetworkImageProvider(imageUrl)
+        .resolve(createLocalImageConfiguration(context));
 
     late final ImageStreamListener listener;
     listener = ImageStreamListener(
@@ -180,7 +179,9 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
         final l10n = AppLocalizations.of(sheetContext);
         return CupertinoActionSheet(
           title: Text(l10n.imageActions),
-          message: Text(l10n.imageCurrentPosition(_currentIndex + 1, widget.images.length)),
+          message: Text(
+            l10n.imageCurrentPosition(_currentIndex + 1, widget.images.length),
+          ),
           actions: [
             CupertinoActionSheetAction(
               onPressed: () async {
@@ -215,7 +216,10 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
           if (!mounted) {
             return;
           }
-          await AppFeedback.showError(context, message: AppLocalizations.of(context).noPhotoPermission);
+          await McFeedback.showError(
+            context,
+            message: AppLocalizations.of(context).noPhotoPermission,
+          );
           return;
         }
       }
@@ -230,12 +234,18 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
       if (!mounted) {
         return;
       }
-      await AppFeedback.showSuccess(context, message: AppLocalizations.of(context).postImageSaveSuccess);
+      await McFeedback.showSuccess(
+        context,
+        message: AppLocalizations.of(context).postImageSaveSuccess,
+      );
     } catch (_) {
       if (!mounted) {
         return;
       }
-      await AppFeedback.showError(context, message: AppLocalizations.of(context).imageSaveFailed);
+      await McFeedback.showError(
+        context,
+        message: AppLocalizations.of(context).imageSaveFailed,
+      );
     }
   }
 
@@ -257,7 +267,10 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
       if (!mounted) {
         return;
       }
-      await AppFeedback.showError(context, message: AppLocalizations.of(context).shareImageFailed);
+      await McFeedback.showError(
+        context,
+        message: AppLocalizations.of(context).shareImageFailed,
+      );
     }
   }
 

@@ -1,7 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../ui/app_theme.dart';
 
 class AuthLoadingScreen extends StatelessWidget {
   const AuthLoadingScreen({super.key});
@@ -9,10 +9,10 @@ class AuthLoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.mc.background,
       child: SafeArea(
         child: Center(
-          child:           Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ClipRRect(
@@ -29,10 +29,7 @@ class AuthLoadingScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
-                  color: CupertinoDynamicColor.resolve(
-                    AppColors.mutedForeground,
-                    context,
-                  ),
+                  color: context.mc.secondaryLabel,
                 ),
               ),
               const SizedBox(height: 36),

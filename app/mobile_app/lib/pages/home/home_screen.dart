@@ -1,4 +1,5 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,10 +10,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/post_feed_provider.dart';
 import '../../router/app_router.dart';
 import '../../services/error_messages.dart';
-import '../../ui/app_feedback.dart';
 import '../../ui/app_responsive.dart';
-import '../../ui/app_theme.dart';
-import '../../ui/app_widgets.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -71,14 +69,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     try {
       if (!_hasLoadedTags) {
         final response = await ref.read(postServiceProvider).getPostTags();
-        final tags = (response.data ?? const <PostTagDto>[])
-            .where((tag) => tag.isActive != false)
-            .toList()
-          ..sort((a, b) {
-            final aName = a.name?.trim() ?? '';
-            final bName = b.name?.trim() ?? '';
-            return aName.compareTo(bName);
-          });
+        final tags =
+            (response.data ?? const <PostTagDto>[])
+                .where((tag) => tag.isActive != false)
+                .toList()
+              ..sort((a, b) {
+                final aName = a.name?.trim() ?? '';
+                final bName = b.name?.trim() ?? '';
+                return aName.compareTo(bName);
+              });
 
         if (!mounted) return;
         setState(() {
@@ -90,7 +89,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (!mounted) return;
 
       if (_tags.isEmpty) {
-        await AppFeedback.showInfo(context, message: AppLocalizations.of(context).noTagAvailable);
+        await McFeedback.showInfo(
+          context,
+          message: AppLocalizations.of(context).noTagAvailable,
+        );
         return;
       }
 
@@ -124,7 +126,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       context.push(buildTagLocation(selectedTag.id));
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -142,7 +144,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final isAuthenticated = authState?.status == AuthStatus.authenticated;
 
     return CupertinoPageScaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.mc.background,
       child: feedAsync.when(
         data: (state) => CustomScrollView(
           controller: _scrollController,
@@ -152,10 +154,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           slivers: [
             CupertinoSliverNavigationBar(
               largeTitle: Text(AppLocalizations.of(context).tabHome),
-              backgroundColor: CupertinoDynamicColor.resolve(
-                AppColors.background,
-                context,
-              ).withValues(alpha: 0.94),
+              backgroundColor: context.mc.background.withValues(alpha: 0.94),
               border: null,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -165,10 +164,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     onPressed: _openTagPicker,
                     child: _isLoadingTags
                         ? const CupertinoActivityIndicator(radius: 10)
-                        : const Icon(
+                        : Icon(
                             CupertinoIcons.tag_fill,
                             size: 24,
-                            color: AppColors.primary,
+                            color: context.mc.primary,
                           ),
                   ),
                   CupertinoButton(
@@ -180,10 +179,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         context.go(AppRoutePaths.login);
                       }
                     },
-                    child: const Icon(
+                    child: Icon(
                       CupertinoIcons.plus_circle_fill,
                       size: 28,
-                      color: AppColors.primary,
+                      color: context.mc.primary,
                     ),
                   ),
                 ],
@@ -202,9 +201,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: CupertinoSearchTextField(
                   key: const ValueKey('home-responsive-search-field'),
                   controller: _searchController,
-                  placeholder: AppLocalizations.of(context).homeSearchPlaceholder,
-                  borderRadius: BorderRadius.circular(AppRadii.md),
-                  backgroundColor: AppColors.secondary,
+                  placeholder: AppLocalizations.of(context)
+                      .homeSearchPlaceholder,
+                  borderRadius: BorderRadius.circular(McRadii.md),
+                  backgroundColor: context.mc.secondary,
                   onSubmitted: (value) =>
                       ref.read(homeFeedProvider.notifier).search(value),
                   onChanged: (value) {
@@ -269,9 +269,11 @@ class _PostListSection extends StatelessWidget {
     }
 
     if (posts.isEmpty) {
-      return AppEmptyState(
+      return McEmpty.placeholder(
         icon: keyword.isEmpty ? CupertinoIcons.news : CupertinoIcons.search,
-        title: keyword.isEmpty ? AppLocalizations.of(context).homeEmpty : AppLocalizations.of(context).homeNoSearchResults,
+        title: keyword.isEmpty
+            ? AppLocalizations.of(context).homeEmpty
+            : AppLocalizations.of(context).homeNoSearchResults,
         description: keyword.isEmpty
             ? AppLocalizations.of(context).waitFirstPoster
             : AppLocalizations.of(context).tryDifferentKeyword,
@@ -347,8 +349,10 @@ class _SearchLoadingIndicator extends StatelessWidget {
         const CupertinoActivityIndicator(radius: 8),
         const SizedBox(width: 8),
         Text(
-          keyword.isEmpty ? AppLocalizations.of(context).refreshingPosts : AppLocalizations.of(context).searching,
-          style: AppTextStyles.label(context),
+          keyword.isEmpty
+              ? AppLocalizations.of(context).refreshingPosts
+              : AppLocalizations.of(context).searching,
+          style: context.mc.textLabel,
         ),
       ],
     );
@@ -375,11 +379,11 @@ class _FeedErrorView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: AppEmptyState(
+        child: McEmpty.placeholder(
           icon: CupertinoIcons.exclamationmark_triangle,
           title: AppLocalizations.of(context).loadingFailed,
           description: message,
-          action: AppPrimaryButton(
+          action: McButton.primary(
             onPressed: onRetry,
             child: Text(AppLocalizations.of(context).retry),
           ),

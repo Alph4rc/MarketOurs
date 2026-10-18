@@ -1,12 +1,10 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 
 import '../models/teacher_comment.dart';
 import '../services/teacher_comment_service.dart';
 import '../services/error_messages.dart';
-import '../ui/app_feedback.dart';
-import '../ui/app_fields.dart';
-import '../ui/app_theme.dart';
 
 const int kTeacherCommentMaxLength = 2000;
 
@@ -68,20 +66,21 @@ Future<void> confirmDeleteTeacherComment(
   required Future<void> Function() onDeleted,
 }) async {
   final l10n = AppLocalizations.of(context);
-  final confirmed = await AppFeedback.confirm(
+  final confirmed = await McFeedback.confirm(
     context,
     title: l10n.teacherCommentsDeleteTitle,
     message: l10n.teacherCommentsDeleteDescription,
     cancelText: l10n.cancel,
     confirmText: l10n.teacherCommentsDelete,
     destructive: true,
+    barrierDismissible: true,
   );
   if (confirmed != true) return;
 
   try {
     await service.deleteTeacherComment(comment.key);
     if (context.mounted) {
-      await AppFeedback.showSuccess(
+      await McFeedback.showSuccess(
         context,
         message: l10n.teacherCommentsDeleted,
       );
@@ -89,7 +88,7 @@ Future<void> confirmDeleteTeacherComment(
     await onDeleted();
   } catch (error) {
     if (context.mounted) {
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -113,21 +112,21 @@ Future<bool> _submitEdit(
   final commentText = commentController.text.trim();
 
   if (teacherName.isEmpty) {
-    await AppFeedback.showError(
+    await McFeedback.showError(
       context,
       message: l10n.teacherCommentsTeacherRequired,
     );
     return false;
   }
   if (courseName.isEmpty) {
-    await AppFeedback.showError(
+    await McFeedback.showError(
       context,
       message: l10n.teacherCommentsCourseRequired,
     );
     return false;
   }
   if (commentText.length > kTeacherCommentMaxLength) {
-    await AppFeedback.showError(
+    await McFeedback.showError(
       context,
       message: l10n.teacherCommentsCommentTooLong(kTeacherCommentMaxLength),
     );
@@ -145,15 +144,12 @@ Future<bool> _submitEdit(
       ),
     );
     if (!context.mounted) return false;
-    await AppFeedback.showSuccess(
-      context,
-      message: l10n.teacherCommentsUpdated,
-    );
+    await McFeedback.showSuccess(context, message: l10n.teacherCommentsUpdated);
     await onSaved();
     return true;
   } catch (error) {
     if (!context.mounted) return false;
-    await AppFeedback.showError(
+    await McFeedback.showError(
       context,
       message: extractErrorFromException(error),
     );
@@ -190,7 +186,7 @@ class _EditDialogContent extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.all(12),
           padding: const EdgeInsets.all(16),
-          decoration: AppDecorations.card(context),
+          decoration: context.mc.cardDecoration(),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -201,7 +197,7 @@ class _EditDialogContent extends StatelessWidget {
                     Expanded(
                       child: Text(
                         l10n.teacherCommentsEditTitle,
-                        style: AppTextStyles.sectionTitle(context),
+                        style: context.mc.textSection,
                       ),
                     ),
                     CupertinoButton(
@@ -215,16 +211,16 @@ class _EditDialogContent extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   l10n.teacherCommentsEditSubtitle,
-                  style: AppTextStyles.muted(context),
+                  style: context.mc.textMuted,
                 ),
                 const SizedBox(height: 14),
-                AppTextField(
+                McField.text(
                   controller: teacherController,
                   placeholder: l10n.teacherCommentsTeacherPlaceholder,
                   prefix: const Icon(CupertinoIcons.person, size: 18),
                 ),
                 const SizedBox(height: 10),
-                AppTextField(
+                McField.text(
                   controller: courseController,
                   placeholder: l10n.teacherCommentsCoursePlaceholder,
                   prefix: const Icon(CupertinoIcons.book, size: 18),
@@ -234,14 +230,17 @@ class _EditDialogContent extends StatelessWidget {
                   children: [
                     Text(
                       l10n.teacherCommentsStarLabel,
-                      style: AppTextStyles.label(context),
+                      style: context.mc.textLabel,
                     ),
                     const SizedBox(width: 12),
-                    TeacherCommentStarRating(value: star, onChanged: onStarChanged),
+                    TeacherCommentStarRating(
+                      value: star,
+                      onChanged: onStarChanged,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                AppTextField(
+                McField.text(
                   controller: commentController,
                   placeholder: l10n.teacherCommentsCommentPlaceholder,
                   maxLines: 4,
@@ -251,7 +250,7 @@ class _EditDialogContent extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: CupertinoButton.filled(
-                    borderRadius: BorderRadius.circular(AppRadii.lg),
+                    borderRadius: BorderRadius.circular(McRadii.lg),
                     onPressed: isSubmitting ? null : onSubmit,
                     child: isSubmitting
                         ? const CupertinoActivityIndicator(
@@ -270,21 +269,19 @@ class _EditDialogContent extends StatelessWidget {
 }
 
 class TeacherCommentStarRating extends StatelessWidget {
-  const TeacherCommentStarRating({super.key, required this.value, this.onChanged});
+  const TeacherCommentStarRating({
+    super.key,
+    required this.value,
+    this.onChanged,
+  });
 
   final int value;
   final ValueChanged<int>? onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final activeColor = CupertinoDynamicColor.resolve(
-      AppColors.primary,
-      context,
-    );
-    final inactiveColor = CupertinoDynamicColor.resolve(
-      AppColors.mutedForeground,
-      context,
-    ).withValues(alpha: 0.35);
+    final activeColor = context.mc.primary;
+    final inactiveColor = context.mc.secondaryLabel.withValues(alpha: 0.35);
     final isInteractive = onChanged != null;
 
     return Row(

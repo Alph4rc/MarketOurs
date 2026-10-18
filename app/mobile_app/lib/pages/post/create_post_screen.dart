@@ -2,6 +2,7 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 
 import '../../components/editable_image_wrap.dart';
@@ -14,7 +15,6 @@ import '../../services/error_messages.dart';
 import '../../router/app_router.dart';
 import '../../services/file_service.dart';
 import '../../services/image_compression_service.dart';
-import '../../ui/app_feedback.dart';
 import '../../utils/dto_validation.dart';
 
 class CreatePostScreen extends ConsumerStatefulWidget {
@@ -63,11 +63,13 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
     setState(() {
       for (final file in picked) {
-        _imageEntries.add(EditableImageEntry(
-          id: ValueKey('new-${_imageIdCounter++}'),
-          displayUrl: file.path,
-          localFile: file,
-        ));
+        _imageEntries.add(
+          EditableImageEntry(
+            id: ValueKey('new-${_imageIdCounter++}'),
+            displayUrl: file.path,
+            localFile: file,
+          ),
+        );
       }
     });
   }
@@ -177,7 +179,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
 
       if (!mounted) return;
 
-      await AppFeedback.showSuccess(
+      await McFeedback.showSuccess(
         context,
         message: AppLocalizations.of(context).postCreated,
       );
@@ -185,7 +187,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
       context.pushReplacement(buildPostDetailLocation(post.id));
     } catch (error) {
       if (!mounted) return;
-      await AppFeedback.showError(
+      await McFeedback.showError(
         context,
         message: extractErrorFromException(error),
       );
@@ -243,14 +245,17 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 uploadProgress: _uploadProgress,
                 titleValidator: (v) => requiredMaxValidator(
                   v,
-                  emptyMessage: AppLocalizations.of(context).postCreateTitleEmpty,
+                  emptyMessage: AppLocalizations.of(context)
+                      .postCreateTitleEmpty,
                   max: DtoLimits.postTitleMax,
-                  maxMessage: AppLocalizations.of(context).postCreateTitleTooLong(DtoLimits.postTitleMax),
+                  maxMessage: AppLocalizations.of(context)
+                      .postCreateTitleTooLong(DtoLimits.postTitleMax),
                 ),
                 contentValidator: (v) {
                   final text = v?.trim() ?? '';
                   if (text.length > DtoLimits.postContentMax) {
-                    return AppLocalizations.of(context).postCreateContentTooLong(DtoLimits.postContentMax);
+                    return AppLocalizations.of(context)
+                        .postCreateContentTooLong(DtoLimits.postContentMax);
                   }
                   if (text.isEmpty && _imageEntries.isEmpty) {
                     return AppLocalizations.of(context).postCreateContentEmpty;

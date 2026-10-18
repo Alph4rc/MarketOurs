@@ -1,6 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:mobile_app/models/post.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
@@ -9,11 +10,10 @@ import 'package:mobile_app/router/app_router.dart';
 import 'package:mobile_app/services/error_messages.dart';
 import 'package:mobile_app/services/follow_service.dart';
 import 'package:mobile_app/services/share_service.dart';
-import 'package:mobile_app/ui/app_feedback.dart';
-import 'package:mobile_app/ui/app_theme.dart';
-import 'package:mobile_app/ui/app_widgets.dart';
-import 'package:mobile_app/components/app_network_image.dart';
 import 'package:mobile_app/utils/date_formatters.dart';
+
+import 'app_avatar.dart';
+import 'app_network_image.dart';
 
 class PostCard extends ConsumerWidget {
   const PostCard({super.key, required this.post});
@@ -30,7 +30,10 @@ class PostCard extends ConsumerWidget {
       await _shareService.sharePost(post, sharePositionOrigin: origin);
     } catch (_) {
       if (context.mounted) {
-        await AppFeedback.showError(context, message: AppLocalizations.of(context).shareFailed);
+        await McFeedback.showError(
+          context,
+          message: AppLocalizations.of(context).shareFailed,
+        );
       }
     }
   }
@@ -78,24 +81,25 @@ class PostCard extends ConsumerWidget {
 
   Future<void> _handleDelete(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
-    final confirmed = await AppFeedback.confirm(
+    final confirmed = await McFeedback.confirm(
       context,
       message: l10n.postDeleteConfirm,
       title: l10n.postDeleteTitle,
       confirmText: l10n.delete,
       cancelText: l10n.cancel,
       destructive: true,
+      barrierDismissible: true,
     );
     if (confirmed != true) return;
 
     try {
       await ref.read(postServiceProvider).deletePost(post.id);
       if (context.mounted) {
-        await AppFeedback.showSuccess(context, message: l10n.postDeleted);
+        await McFeedback.showSuccess(context, message: l10n.postDeleted);
       }
     } catch (error) {
       if (context.mounted) {
-        await AppFeedback.showError(
+        await McFeedback.showError(
           context,
           message: extractErrorFromException(error),
         );
@@ -106,13 +110,14 @@ class PostCard extends ConsumerWidget {
   Future<void> _handleBlock(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
     final targetName = post.author?.name ?? l10n.profileBlock;
-    final confirmed = await AppFeedback.confirm(
+    final confirmed = await McFeedback.confirm(
       context,
       message: l10n.blockConfirmMessage(targetName),
       title: l10n.profileBlock,
       confirmText: l10n.profileBlock,
       cancelText: l10n.cancel,
       destructive: true,
+      barrierDismissible: true,
     );
     if (confirmed != true) return;
 
@@ -121,11 +126,11 @@ class PostCard extends ConsumerWidget {
       if (userId == null || userId.isEmpty) return;
       await FollowService().blockUser(userId);
       if (context.mounted) {
-        await AppFeedback.showSuccess(context, message: l10n.blockSuccess);
+        await McFeedback.showSuccess(context, message: l10n.blockSuccess);
       }
     } catch (error) {
       if (context.mounted) {
-        await AppFeedback.showError(
+        await McFeedback.showError(
           context,
           message: extractErrorFromException(error),
         );
@@ -150,9 +155,8 @@ class PostCard extends ConsumerWidget {
     final user = authState?.user;
     final isOwner = user != null && post.userId == user.id;
 
-    return AppTappableCard(
+    return McCard.elevated(
       padding: EdgeInsets.zero,
-      radius: AppRadii.xl,
       onPressed: () => context.push(buildPostDetailLocation(post.id)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,9 +187,9 @@ class PostCard extends ConsumerWidget {
                           const SizedBox(width: 6),
                           Text(
                             'IP属地: ${post.ipLocation?.isNotEmpty == true ? post.ipLocation! : '未知'}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
-                              color: AppColors.mutedForeground,
+                              color: context.mc.secondaryLabel,
                             ),
                           ),
                         ],
@@ -196,7 +200,7 @@ class PostCard extends ConsumerWidget {
                           post.updatedAt,
                           l10n: AppLocalizations.of(context),
                         ),
-                        style: AppTextStyles.label(context),
+                        style: context.mc.textLabel,
                       ),
                     ],
                   ),
@@ -206,10 +210,10 @@ class PostCard extends ConsumerWidget {
                     padding: EdgeInsets.zero,
                     minimumSize: Size.zero,
                     onPressed: () => _showPostActions(context, ref, isOwner),
-                    child: const Icon(
+                    child: Icon(
                       CupertinoIcons.ellipsis,
                       size: 18,
-                      color: AppColors.mutedForeground,
+                      color: context.mc.secondaryLabel,
                     ),
                   ),
               ],
@@ -219,9 +223,7 @@ class PostCard extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               title,
-              style: AppTextStyles.sectionTitle(
-                context,
-              ).copyWith(fontSize: 18, height: 1.3),
+              style: context.mc.textSection.copyWith(fontSize: 18, height: 1.3),
             ),
           ),
           const SizedBox(height: 8),
@@ -233,12 +235,9 @@ class PostCard extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     excerpt,
-                    style: AppTextStyles.body(context).copyWith(
+                    style: context.mc.textBody.copyWith(
                       fontSize: 15,
-                      color: CupertinoDynamicColor.resolve(
-                        AppColors.foreground,
-                        context,
-                      ).withValues(alpha: 0.8),
+                      color: context.mc.foreground.withValues(alpha: 0.8),
                     ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
@@ -247,7 +246,7 @@ class PostCard extends ConsumerWidget {
                 if (post.images?.isNotEmpty == true) ...[
                   const SizedBox(width: 12),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadii.md),
+                    borderRadius: BorderRadius.circular(McRadii.md),
                     child: SizedBox(
                       width: 88,
                       height: 88,
@@ -270,10 +269,7 @@ class PostCard extends ConsumerWidget {
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: CupertinoDynamicColor.resolve(
-                    AppColors.border,
-                    context,
-                  ).withValues(alpha: 0.3),
+                  color: context.mc.border.withValues(alpha: 0.3),
                 ),
               ),
             ),
@@ -293,10 +289,10 @@ class PostCard extends ConsumerWidget {
                   padding: EdgeInsets.zero,
                   minimumSize: Size.zero,
                   onPressed: () => _handleShare(context),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.share,
                     size: 18,
-                    color: AppColors.mutedForeground,
+                    color: context.mc.secondaryLabel,
                   ),
                 ),
               ],
@@ -321,10 +317,9 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedColor = CupertinoDynamicColor.resolve(
-      active ? AppColors.destructive : AppColors.mutedForeground,
-      context,
-    );
+    final resolvedColor = active
+        ? context.mc.destructive
+        : context.mc.secondaryLabel;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -353,7 +348,7 @@ class SimplePostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return AppTappableCard(
+    return McCard.elevated(
       padding: EdgeInsets.zero,
       onPressed: () => context.push(buildPostDetailLocation(post.id)),
       child: Column(
@@ -368,10 +363,10 @@ class SimplePostCard extends StatelessWidget {
                   post.title?.trim().isNotEmpty == true
                       ? post.title!.trim()
                       : l10n.postUnnamed,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.foreground,
+                    color: context.mc.foreground,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -381,9 +376,9 @@ class SimplePostCard extends StatelessWidget {
                       : l10n.postNoContentDesc,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     height: 1.5,
-                    color: AppColors.mutedForeground,
+                    color: context.mc.secondaryLabel,
                   ),
                 ),
               ],
@@ -395,10 +390,7 @@ class SimplePostCard extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: CupertinoDynamicColor.resolve(
-                    AppColors.border,
-                    context,
-                  ).withValues(alpha: 0.3),
+                  color: context.mc.border.withValues(alpha: 0.3),
                 ),
               ),
             ),
@@ -417,9 +409,9 @@ class SimplePostCard extends StatelessWidget {
                 const SizedBox(width: 24),
                 Text(
                   'IP属地: ${post.ipLocation?.isNotEmpty == true ? post.ipLocation! : '未知'}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.mutedForeground,
+                    color: context.mc.secondaryLabel,
                   ),
                 ),
                 const Spacer(),
@@ -427,10 +419,10 @@ class SimplePostCard extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   minimumSize: Size.zero,
                   onPressed: () => _handleShare(context),
-                  child: const Icon(
+                  child: Icon(
                     CupertinoIcons.share,
                     size: 18,
-                    color: AppColors.mutedForeground,
+                    color: context.mc.secondaryLabel,
                   ),
                 ),
               ],
@@ -450,7 +442,10 @@ class SimplePostCard extends StatelessWidget {
       await _shareService.sharePost(post, sharePositionOrigin: origin);
     } catch (_) {
       if (context.mounted) {
-        await AppFeedback.showError(context, message: AppLocalizations.of(context).shareFailed);
+        await McFeedback.showError(
+          context,
+          message: AppLocalizations.of(context).shareFailed,
+        );
       }
     }
   }

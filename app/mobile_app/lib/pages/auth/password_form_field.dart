@@ -1,6 +1,5 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
-
-import '../../ui/app_fields.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 class PasswordFormField extends StatefulWidget {
   const PasswordFormField({
@@ -31,18 +30,18 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
 
   @override
   Widget build(BuildContext context) {
-    return AppTextField(
+    return McField.text(
       controller: widget.controller,
       placeholder: widget.placeholder,
       suffix: CupertinoButton(
         padding: EdgeInsets.zero,
         minimumSize: Size.zero,
-          onPressed: () => setState(() => _obscureText = !_obscureText),
-          child: Icon(
-            _obscureText ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
-            size: 18,
-          ),
+        onPressed: () => setState(() => _obscureText = !_obscureText),
+        child: Icon(
+          _obscureText ? CupertinoIcons.eye : CupertinoIcons.eye_slash,
+          size: 18,
         ),
+      ),
       validator: widget.validator,
       onFieldSubmitted: widget.onFieldSubmitted,
       onChanged: widget.onChanged,

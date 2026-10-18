@@ -1,7 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:luamris_ui/luamris_ui.dart';
 
 import '../../../../l10n/app_localizations.dart';
-import '../../../ui/app_theme.dart';
 
 class PostDetailActionBar extends StatelessWidget {
   const PostDetailActionBar({
@@ -33,18 +33,8 @@ class PostDetailActionBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(
-            color: CupertinoDynamicColor.resolve(
-              AppColors.border,
-              context,
-            ).withValues(alpha: 0.3),
-          ),
-          bottom: BorderSide(
-            color: CupertinoDynamicColor.resolve(
-              AppColors.border,
-              context,
-            ).withValues(alpha: 0.3),
-          ),
+          top: BorderSide(color: context.mc.border.withValues(alpha: 0.3)),
+          bottom: BorderSide(color: context.mc.border.withValues(alpha: 0.3)),
         ),
       ),
       child: Row(
@@ -53,7 +43,7 @@ class PostDetailActionBar extends StatelessWidget {
             icon: isLiked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
             label: '$likes',
             onTap: isWorking ? null : onLike,
-            color: const Color(0xFFFF5A5F),
+            color: context.mc.pink,
             active: isLiked,
           ),
           const SizedBox(width: 12),
@@ -63,10 +53,7 @@ class PostDetailActionBar extends StatelessWidget {
                 : CupertinoIcons.hand_thumbsdown,
             label: '$dislikes',
             onTap: isWorking ? null : onDislike,
-            color: CupertinoDynamicColor.resolve(
-              AppColors.mutedForeground,
-              context,
-            ),
+            color: context.mc.secondaryLabel,
             active: isDisliked,
           ),
           const Spacer(),
@@ -75,10 +62,7 @@ class PostDetailActionBar extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: CupertinoDynamicColor.resolve(
-                AppColors.mutedForeground,
-                context,
-              ),
+              color: context.mc.secondaryLabel,
             ),
           ),
           const SizedBox(width: 12),
@@ -86,10 +70,10 @@ class PostDetailActionBar extends StatelessWidget {
             padding: EdgeInsets.zero,
             minimumSize: Size.zero,
             onPressed: onShare,
-            child: const Icon(
+            child: Icon(
               CupertinoIcons.share,
               size: 18,
-              color: AppColors.mutedForeground,
+              color: context.mc.secondaryLabel,
             ),
           ),
         ],
@@ -121,10 +105,8 @@ class _ActionChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: active
-              ? color.withValues(alpha: 0.1)
-              : CupertinoDynamicColor.resolve(AppColors.secondary, context),
-          borderRadius: BorderRadius.circular(AppRadii.pill),
+          color: active ? color.withValues(alpha: 0.1) : context.mc.secondary,
+          borderRadius: BorderRadius.circular(McRadii.pill),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -132,12 +114,7 @@ class _ActionChip extends StatelessWidget {
             Icon(
               icon,
               size: 18,
-              color: active
-                  ? color
-                  : CupertinoDynamicColor.resolve(
-                      AppColors.mutedForeground,
-                      context,
-                    ),
+              color: active ? color : context.mc.secondaryLabel,
             ),
             const SizedBox(width: 8),
             Text(
@@ -145,12 +122,7 @@ class _ActionChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: active
-                    ? color
-                    : CupertinoDynamicColor.resolve(
-                        AppColors.foreground,
-                        context,
-                      ),
+                color: active ? color : context.mc.foreground,
               ),
             ),
           ],
