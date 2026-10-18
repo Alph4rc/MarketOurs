@@ -1,7 +1,8 @@
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'
+    hide GlobalCupertinoLocalizations;
 import 'package:feedback_sdk/feedback_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
