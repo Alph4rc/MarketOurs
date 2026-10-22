@@ -1582,4 +1582,106 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get feedbackImageTooMany => 'Bis zu 6 Bilder';
+
+  @override
+  String get profileAppSettings => 'App-Einstellungen';
+
+  @override
+  String get permissionSettingsTitle => 'Berechtigungen';
+
+  @override
+  String get permissionSettingsEntryDesc =>
+      'Vom System angeforderte Berechtigungen anzeigen';
+
+  @override
+  String get permissionSettingsIntro =>
+      'LightHub fragt Berechtigungen nur bei der Nutzung entsprechender Funktionen an. Die Liste kann je nach System variieren; prüfe den Status hier oder ändere ihn jederzeit in den Systemeinstellungen.';
+
+  @override
+  String get permissionSectionTitle => 'Systemberechtigungen';
+
+  @override
+  String permissionSummary(int granted, int total) {
+    return '$granted von $total aktiviert';
+  }
+
+  @override
+  String get permissionNotificationsTitle => 'Mitteilungen';
+
+  @override
+  String get permissionNotificationsDesc =>
+      'Antworten auf Kommentare, Trend-Hinweise und Systemnachrichten erhalten';
+
+  @override
+  String get permissionCameraTitle => 'Kamera';
+
+  @override
+  String get permissionCameraDesc => 'Profil- und Beitragsbilder aufnehmen';
+
+  @override
+  String get permissionCameraNeeded =>
+      'Kamerazugriff ist deaktiviert. Aktiviere ihn in den Systemeinstellungen';
+
+  @override
+  String get permissionPhotosTitle => 'Fotos';
+
+  @override
+  String get permissionPhotosDesc =>
+      'Bilder aus der Galerie auswählen oder Beitragsbilder speichern';
+
+  @override
+  String get permissionStatusGranted => 'Aktiviert';
+
+  @override
+  String get permissionStatusLimited => 'Teilweise';
+
+  @override
+  String get permissionStatusDenied => 'Deaktiviert';
+
+  @override
+  String get permissionStatusPermanentlyDenied => 'Blockiert';
+
+  @override
+  String get permissionStatusRestricted => 'Eingeschränkt';
+
+  @override
+  String get permissionOpenSettings => 'Systemeinstellungen öffnen';
+
+  @override
+  String get permissionSettingsHint =>
+      'Wenn das System keine Abfrage mehr anzeigt, aktiviere die Berechtigung manuell in den Systemeinstellungen.';
+
+  @override
+  String get permissionManageDialogTitle =>
+      'In den Systemeinstellungen verwalten';
+
+  @override
+  String get permissionManageDialogMessage =>
+      'Um diese Berechtigung zu aktivieren, zu deaktivieren oder anzupassen, verwende die Systemeinstellungen.';
+
+  @override
+  String get permissionGrantedToast => 'Berechtigung aktiviert';
+
+  @override
+  String get permissionRequestDenied =>
+      'Berechtigung nicht erteilt. Versuche es später erneut';
+
+  @override
+  String get permissionRequestFailed =>
+      'Berechtigungsanfrage fehlgeschlagen. Versuche es später erneut';
+
+  @override
+  String get permissionUnsupportedTitle =>
+      'Berechtigungsverwaltung auf dieser Plattform nicht verfügbar';
+
+  @override
+  String get permissionUnsupportedDesc =>
+      'Verwalte die App-Berechtigungen auf einem iOS- oder Android-Gerät.';
+
+  @override
+  String get permissionLoadFailed =>
+      'Berechtigungsstatus konnte nicht geladen werden';
+
+  @override
+  String get permissionLoadFailedDesc => 'Bitte versuche es später erneut';
 }

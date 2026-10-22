@@ -14,6 +14,7 @@ import '../../components/app_network_image.dart';
 import '../../components/slider_captcha.dart';
 import '../../providers/auth_provider.dart';
 import '../../router/app_router.dart';
+import '../../services/app_permissions_service.dart';
 import '../../services/file_service.dart';
 import '../../services/image_compression_service.dart';
 import '../../utils/dto_validation.dart';
@@ -103,6 +104,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 
   Future<void> _takePhoto() async {
+    final granted = await requestCameraPermission();
+    if (!granted) {
+      if (!mounted) return;
+      await McFeedback.showError(
+        context,
+        message: AppLocalizations.of(context).permissionCameraNeeded,
+      );
+      return;
+    }
+
     final picked = await _imagePicker.pickImage(
       source: ImageSource.camera,
       imageQuality: 90,

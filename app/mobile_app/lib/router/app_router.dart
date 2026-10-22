@@ -19,6 +19,7 @@ import '../pages/profile/following_screen.dart';
 import '../pages/profile/profile_screen.dart';
 import '../pages/profile/public_profile_screen.dart';
 import '../pages/notification/notification_screen.dart';
+import '../pages/settings/permissions_screen.dart';
 import '../pages/legal/terms_screen.dart';
 import '../pages/legal/privacy_screen.dart';
 import '../pages/main_shell.dart';
@@ -39,6 +40,7 @@ abstract final class AppRoutePaths {
   static const profile = '/profile';
   static const feedback = '/feedback';
   static const bindings = '/profile/bindings';
+  static const permissions = '/settings/permissions';
   static const following = '/following';
   static const publicProfile = '/user/:userId';
   static const createPost = '/post/create';
@@ -61,6 +63,7 @@ abstract final class AppRouteNames {
   static const profile = 'profile';
   static const feedback = 'feedback';
   static const bindings = 'bindings';
+  static const permissions = 'permissions';
   static const following = 'following';
   static const publicProfile = 'public-profile';
   static const createPost = 'create-post';
@@ -239,6 +242,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutePaths.bindings,
         name: AppRouteNames.bindings,
         builder: (context, state) => const BindingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.permissions,
+        name: AppRouteNames.permissions,
+        builder: (context, state) => const PermissionsScreen(),
       ),
       GoRoute(
         path: AppRoutePaths.following,

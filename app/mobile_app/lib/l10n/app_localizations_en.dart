@@ -1595,4 +1595,104 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackImageTooMany => 'Up to 6 images';
+
+  @override
+  String get profileAppSettings => 'App Settings';
+
+  @override
+  String get permissionSettingsTitle => 'Permissions';
+
+  @override
+  String get permissionSettingsEntryDesc =>
+      'Review system permissions requested by the app';
+
+  @override
+  String get permissionSettingsIntro =>
+      'LightHub only requests permissions when you use related features. The list may differ by system; check the status here or change it anytime in system settings.';
+
+  @override
+  String get permissionSectionTitle => 'System Permissions';
+
+  @override
+  String permissionSummary(int granted, int total) {
+    return '$granted of $total enabled';
+  }
+
+  @override
+  String get permissionNotificationsTitle => 'Notifications';
+
+  @override
+  String get permissionNotificationsDesc =>
+      'Receive comment replies, trending alerts, and system messages';
+
+  @override
+  String get permissionCameraTitle => 'Camera';
+
+  @override
+  String get permissionCameraDesc => 'Take profile and post photos';
+
+  @override
+  String get permissionCameraNeeded =>
+      'Camera access is off. Enable it in system settings';
+
+  @override
+  String get permissionPhotosTitle => 'Photos';
+
+  @override
+  String get permissionPhotosDesc =>
+      'Choose images from your library or save post images';
+
+  @override
+  String get permissionStatusGranted => 'Enabled';
+
+  @override
+  String get permissionStatusLimited => 'Limited';
+
+  @override
+  String get permissionStatusDenied => 'Off';
+
+  @override
+  String get permissionStatusPermanentlyDenied => 'Blocked';
+
+  @override
+  String get permissionStatusRestricted => 'Restricted';
+
+  @override
+  String get permissionOpenSettings => 'Open System Settings';
+
+  @override
+  String get permissionSettingsHint =>
+      'If the system no longer shows a prompt, enable the permission manually in system settings.';
+
+  @override
+  String get permissionManageDialogTitle => 'Manage in System Settings';
+
+  @override
+  String get permissionManageDialogMessage =>
+      'To enable, disable, or adjust this permission, please use system settings.';
+
+  @override
+  String get permissionGrantedToast => 'Permission enabled';
+
+  @override
+  String get permissionRequestDenied =>
+      'Permission not granted. You can try again later';
+
+  @override
+  String get permissionRequestFailed =>
+      'Could not request permission. Please try again later';
+
+  @override
+  String get permissionUnsupportedTitle =>
+      'Permission management isn\'t available on this platform';
+
+  @override
+  String get permissionUnsupportedDesc =>
+      'Manage app permissions on an iOS or Android device.';
+
+  @override
+  String get permissionLoadFailed => 'Could not load permission status';
+
+  @override
+  String get permissionLoadFailedDesc => 'Please try again later';
 }

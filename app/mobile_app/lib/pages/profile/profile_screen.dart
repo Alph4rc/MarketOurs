@@ -13,6 +13,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../router/app_router.dart';
+import '../../services/app_permissions_service.dart';
 import '../../ui/app_responsive.dart';
 import '../../utils/dto_validation.dart';
 import 'change_password_sheet.dart';
@@ -162,6 +163,20 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     const _ThemeModeSection(),
+                    const SizedBox(height: 16),
+                    _ProfileSection(
+                      title: AppLocalizations.of(context).profileAppSettings,
+                      children: [
+                        _NavRow(
+                          icon: CupertinoIcons.lock_shield,
+                          title: AppLocalizations.of(context)
+                              .permissionSettingsTitle,
+                          subtitle: AppLocalizations.of(context)
+                              .permissionSettingsEntryDesc,
+                          onTap: () => context.push(AppRoutePaths.permissions),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     _ProfileSection(
                       title: AppLocalizations.of(context).profileAbout,
@@ -812,6 +827,16 @@ class _ProfileEditSheetState extends ConsumerState<_ProfileEditSheet> {
   }
 
   Future<void> _takePhoto() async {
+    final granted = await requestCameraPermission();
+    if (!granted) {
+      if (!mounted) return;
+      await McFeedback.showError(
+        context,
+        message: AppLocalizations.of(context).permissionCameraNeeded,
+      );
+      return;
+    }
+
     await ref
         .read(profileEditControllerProvider(widget.initialUser).notifier)
         .takePhoto();

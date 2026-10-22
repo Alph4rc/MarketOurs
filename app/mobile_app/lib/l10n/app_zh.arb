@@ -584,5 +584,42 @@
   "feedbackSubmitting": "提交中…",
   "feedbackSubmitSuccess": "反馈已提交，感谢你的支持！",
   "feedbackPickImageFailed": "选择图片失败，请重试",
-  "feedbackImageTooMany": "最多上传 6 张图片"
+  "feedbackImageTooMany": "最多上传 6 张图片",
+
+  "profileAppSettings": "应用设置",
+  "permissionSettingsTitle": "权限管理",
+  "permissionSettingsEntryDesc": "查看应用申请的系统权限",
+  "permissionSettingsIntro": "光汇只会在使用相关功能时申请系统权限。不同系统展示的权限可能不同，你可以在这里查看状态，或前往系统设置随时调整。",
+  "permissionSectionTitle": "系统权限",
+  "permissionSummary": "已开启 {granted} / {total} 项",
+  "@permissionSummary": {
+    "description": "Number of enabled permissions out of the total.",
+    "placeholders": {
+      "granted": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "permissionNotificationsTitle": "通知",
+  "permissionNotificationsDesc": "接收评论回复、热榜提醒和系统消息",
+  "permissionCameraTitle": "相机",
+  "permissionCameraDesc": "拍摄头像和帖子图片",
+  "permissionCameraNeeded": "相机权限未开启，请前往系统设置开启",
+  "permissionPhotosTitle": "照片",
+  "permissionPhotosDesc": "从相册选择图片，或将帖子图片保存到相册",
+  "permissionStatusGranted": "已开启",
+  "permissionStatusLimited": "部分允许",
+  "permissionStatusDenied": "未开启",
+  "permissionStatusPermanentlyDenied": "已禁用",
+  "permissionStatusRestricted": "受限",
+  "permissionOpenSettings": "打开系统设置",
+  "permissionSettingsHint": "如果系统不再弹出授权提示，请在系统设置中手动开启。",
+  "permissionManageDialogTitle": "在系统设置中管理",
+  "permissionManageDialogMessage": "如需开启、关闭或调整该权限，请在系统设置中操作。",
+  "permissionGrantedToast": "权限已开启",
+  "permissionRequestDenied": "未获得权限，你可以稍后重试",
+  "permissionRequestFailed": "权限申请失败，请稍后重试",
+  "permissionUnsupportedTitle": "当前平台不支持权限管理",
+  "permissionUnsupportedDesc": "请在 iOS 或 Android 设备上管理应用权限。",
+  "permissionLoadFailed": "权限状态加载失败",
+  "permissionLoadFailedDesc": "请稍后重试"
 }

@@ -1555,4 +1555,96 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get feedbackImageTooMany => '이미지는 최대 6장까지';
+
+  @override
+  String get profileAppSettings => '앱 설정';
+
+  @override
+  String get permissionSettingsTitle => '권한 관리';
+
+  @override
+  String get permissionSettingsEntryDesc => '앱이 요청하는 시스템 권한을 확인합니다';
+
+  @override
+  String get permissionSettingsIntro =>
+      'LightHub는 관련 기능을 사용할 때만 권한을 요청합니다. 시스템마다 표시되는 권한이 다를 수 있으며, 여기에서 상태를 확인하거나 시스템 설정에서 언제든지 변경할 수 있습니다.';
+
+  @override
+  String get permissionSectionTitle => '시스템 권한';
+
+  @override
+  String permissionSummary(int granted, int total) {
+    return '사용 중 $granted / $total개';
+  }
+
+  @override
+  String get permissionNotificationsTitle => '알림';
+
+  @override
+  String get permissionNotificationsDesc => '댓글 답글, 인기글 알림, 시스템 메시지를 받습니다';
+
+  @override
+  String get permissionCameraTitle => '카메라';
+
+  @override
+  String get permissionCameraDesc => '프로필과 게시물 이미지를 촬영합니다';
+
+  @override
+  String get permissionCameraNeeded => '카메라 권한이 꺼져 있습니다. 시스템 설정에서 켜 주세요';
+
+  @override
+  String get permissionPhotosTitle => '사진';
+
+  @override
+  String get permissionPhotosDesc => '앨범에서 이미지를 선택하거나 게시물 이미지를 저장합니다';
+
+  @override
+  String get permissionStatusGranted => '사용 중';
+
+  @override
+  String get permissionStatusLimited => '일부 허용';
+
+  @override
+  String get permissionStatusDenied => '사용 안 함';
+
+  @override
+  String get permissionStatusPermanentlyDenied => '차단됨';
+
+  @override
+  String get permissionStatusRestricted => '제한됨';
+
+  @override
+  String get permissionOpenSettings => '시스템 설정 열기';
+
+  @override
+  String get permissionSettingsHint =>
+      '시스템에서 권한 요청 창이 더 이상 표시되지 않으면 시스템 설정에서 직접 켜 주세요.';
+
+  @override
+  String get permissionManageDialogTitle => '시스템 설정에서 관리';
+
+  @override
+  String get permissionManageDialogMessage =>
+      '이 권한을 켜거나 끄거나 조정하려면 시스템 설정에서 변경해 주세요.';
+
+  @override
+  String get permissionGrantedToast => '권한이 켜졌습니다';
+
+  @override
+  String get permissionRequestDenied => '권한을 얻지 못했습니다. 나중에 다시 시도해 주세요';
+
+  @override
+  String get permissionRequestFailed => '권한 요청에 실패했습니다. 나중에 다시 시도해 주세요';
+
+  @override
+  String get permissionUnsupportedTitle => '현재 플랫폼에서는 권한 관리를 지원하지 않습니다';
+
+  @override
+  String get permissionUnsupportedDesc => 'iOS 또는 Android 기기에서 앱 권한을 관리해 주세요.';
+
+  @override
+  String get permissionLoadFailed => '권한 상태를 불러오지 못했습니다';
+
+  @override
+  String get permissionLoadFailedDesc => '나중에 다시 시도해 주세요';
 }

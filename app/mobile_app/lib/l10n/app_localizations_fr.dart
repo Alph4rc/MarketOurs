@@ -1586,4 +1586,106 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get feedbackImageTooMany => 'Jusqu\'à 6 images';
+
+  @override
+  String get profileAppSettings => 'Réglages de l\'application';
+
+  @override
+  String get permissionSettingsTitle => 'Gestion des autorisations';
+
+  @override
+  String get permissionSettingsEntryDesc =>
+      'Voir les autorisations système demandées';
+
+  @override
+  String get permissionSettingsIntro =>
+      'LightHub ne demande des autorisations que lors de l\'utilisation des fonctions concernées. La liste peut varier selon le système ; vérifiez leur état ici ou modifiez-le à tout moment dans les réglages système.';
+
+  @override
+  String get permissionSectionTitle => 'Autorisations système';
+
+  @override
+  String permissionSummary(int granted, int total) {
+    return '$granted sur $total activées';
+  }
+
+  @override
+  String get permissionNotificationsTitle => 'Notifications';
+
+  @override
+  String get permissionNotificationsDesc =>
+      'Recevoir les réponses aux commentaires, les alertes de tendances et les messages système';
+
+  @override
+  String get permissionCameraTitle => 'Appareil photo';
+
+  @override
+  String get permissionCameraDesc =>
+      'Prendre des photos de profil et de publication';
+
+  @override
+  String get permissionCameraNeeded =>
+      'L\'accès à l\'appareil photo est désactivé. Activez-le dans les réglages système';
+
+  @override
+  String get permissionPhotosTitle => 'Photos';
+
+  @override
+  String get permissionPhotosDesc =>
+      'Choisir des images dans la galerie ou enregistrer les images des publications';
+
+  @override
+  String get permissionStatusGranted => 'Activée';
+
+  @override
+  String get permissionStatusLimited => 'Partielle';
+
+  @override
+  String get permissionStatusDenied => 'Désactivée';
+
+  @override
+  String get permissionStatusPermanentlyDenied => 'Bloquée';
+
+  @override
+  String get permissionStatusRestricted => 'Restreinte';
+
+  @override
+  String get permissionOpenSettings => 'Ouvrir les réglages système';
+
+  @override
+  String get permissionSettingsHint =>
+      'Si le système ne propose plus la demande, activez l\'autorisation manuellement dans les réglages système.';
+
+  @override
+  String get permissionManageDialogTitle => 'Gérer dans les réglages système';
+
+  @override
+  String get permissionManageDialogMessage =>
+      'Pour activer, désactiver ou ajuster cette autorisation, utilisez les réglages système.';
+
+  @override
+  String get permissionGrantedToast => 'Autorisation activée';
+
+  @override
+  String get permissionRequestDenied =>
+      'Autorisation non accordée. Réessayez plus tard';
+
+  @override
+  String get permissionRequestFailed =>
+      'Échec de la demande d\'autorisation. Réessayez plus tard';
+
+  @override
+  String get permissionUnsupportedTitle =>
+      'Gestion des autorisations indisponible sur cette plateforme';
+
+  @override
+  String get permissionUnsupportedDesc =>
+      'Gérez les autorisations de l\'application sur un appareil iOS ou Android.';
+
+  @override
+  String get permissionLoadFailed =>
+      'Impossible de charger l\'état des autorisations';
+
+  @override
+  String get permissionLoadFailedDesc => 'Veuillez réessayer plus tard';
 }

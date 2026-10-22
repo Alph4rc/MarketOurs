@@ -1544,4 +1544,94 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get feedbackImageTooMany => '最多上传 6 张图片';
+
+  @override
+  String get profileAppSettings => '应用设置';
+
+  @override
+  String get permissionSettingsTitle => '权限管理';
+
+  @override
+  String get permissionSettingsEntryDesc => '查看应用申请的系统权限';
+
+  @override
+  String get permissionSettingsIntro =>
+      '光汇只会在使用相关功能时申请系统权限。不同系统展示的权限可能不同，你可以在这里查看状态，或前往系统设置随时调整。';
+
+  @override
+  String get permissionSectionTitle => '系统权限';
+
+  @override
+  String permissionSummary(int granted, int total) {
+    return '已开启 $granted / $total 项';
+  }
+
+  @override
+  String get permissionNotificationsTitle => '通知';
+
+  @override
+  String get permissionNotificationsDesc => '接收评论回复、热榜提醒和系统消息';
+
+  @override
+  String get permissionCameraTitle => '相机';
+
+  @override
+  String get permissionCameraDesc => '拍摄头像和帖子图片';
+
+  @override
+  String get permissionCameraNeeded => '相机权限未开启，请前往系统设置开启';
+
+  @override
+  String get permissionPhotosTitle => '照片';
+
+  @override
+  String get permissionPhotosDesc => '从相册选择图片，或将帖子图片保存到相册';
+
+  @override
+  String get permissionStatusGranted => '已开启';
+
+  @override
+  String get permissionStatusLimited => '部分允许';
+
+  @override
+  String get permissionStatusDenied => '未开启';
+
+  @override
+  String get permissionStatusPermanentlyDenied => '已禁用';
+
+  @override
+  String get permissionStatusRestricted => '受限';
+
+  @override
+  String get permissionOpenSettings => '打开系统设置';
+
+  @override
+  String get permissionSettingsHint => '如果系统不再弹出授权提示，请在系统设置中手动开启。';
+
+  @override
+  String get permissionManageDialogTitle => '在系统设置中管理';
+
+  @override
+  String get permissionManageDialogMessage => '如需开启、关闭或调整该权限，请在系统设置中操作。';
+
+  @override
+  String get permissionGrantedToast => '权限已开启';
+
+  @override
+  String get permissionRequestDenied => '未获得权限，你可以稍后重试';
+
+  @override
+  String get permissionRequestFailed => '权限申请失败，请稍后重试';
+
+  @override
+  String get permissionUnsupportedTitle => '当前平台不支持权限管理';
+
+  @override
+  String get permissionUnsupportedDesc => '请在 iOS 或 Android 设备上管理应用权限。';
+
+  @override
+  String get permissionLoadFailed => '权限状态加载失败';
+
+  @override
+  String get permissionLoadFailedDesc => '请稍后重试';
 }

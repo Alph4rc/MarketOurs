@@ -1555,4 +1555,96 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get feedbackImageTooMany => '画像は最大6枚まで';
+
+  @override
+  String get profileAppSettings => 'アプリ設定';
+
+  @override
+  String get permissionSettingsTitle => '権限管理';
+
+  @override
+  String get permissionSettingsEntryDesc => 'アプリが要求するシステム権限を確認';
+
+  @override
+  String get permissionSettingsIntro =>
+      'LightHub は関連機能を使うときだけ権限を要求します。システムによって表示される権限は異なります。ここで状態を確認したり、システム設定でいつでも変更できます。';
+
+  @override
+  String get permissionSectionTitle => 'システム権限';
+
+  @override
+  String permissionSummary(int granted, int total) {
+    return '有効 $granted / $total 件';
+  }
+
+  @override
+  String get permissionNotificationsTitle => '通知';
+
+  @override
+  String get permissionNotificationsDesc => 'コメント返信、トレンド通知、システムメッセージを受け取ります';
+
+  @override
+  String get permissionCameraTitle => 'カメラ';
+
+  @override
+  String get permissionCameraDesc => 'プロフィールや投稿の画像を撮影します';
+
+  @override
+  String get permissionCameraNeeded => 'カメラ権限がオフです。システム設定でオンにしてください';
+
+  @override
+  String get permissionPhotosTitle => '写真';
+
+  @override
+  String get permissionPhotosDesc => 'アルバムから画像を選んだり、投稿画像を保存したりします';
+
+  @override
+  String get permissionStatusGranted => '有効';
+
+  @override
+  String get permissionStatusLimited => '一部許可';
+
+  @override
+  String get permissionStatusDenied => '未許可';
+
+  @override
+  String get permissionStatusPermanentlyDenied => '無効';
+
+  @override
+  String get permissionStatusRestricted => '制限中';
+
+  @override
+  String get permissionOpenSettings => 'システム設定を開く';
+
+  @override
+  String get permissionSettingsHint =>
+      'システムが確認ダイアログを表示しない場合は、システム設定で手動でオンにしてください。';
+
+  @override
+  String get permissionManageDialogTitle => 'システム設定で管理';
+
+  @override
+  String get permissionManageDialogMessage =>
+      'この権限をオン、オフ、または調整するには、システム設定で操作してください。';
+
+  @override
+  String get permissionGrantedToast => '権限が有効になりました';
+
+  @override
+  String get permissionRequestDenied => '権限を取得できませんでした。後でもう一度お試しください';
+
+  @override
+  String get permissionRequestFailed => '権限のリクエストに失敗しました。後でもう一度お試しください';
+
+  @override
+  String get permissionUnsupportedTitle => 'このプラットフォームでは権限管理を利用できません';
+
+  @override
+  String get permissionUnsupportedDesc => 'iOS または Android 端末でアプリの権限を管理してください。';
+
+  @override
+  String get permissionLoadFailed => '権限の状態を読み込めませんでした';
+
+  @override
+  String get permissionLoadFailedDesc => '後でもう一度お試しください';
 }

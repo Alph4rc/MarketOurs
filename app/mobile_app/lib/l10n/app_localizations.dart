@@ -3045,6 +3045,180 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'最多上传 6 张图片'**
   String get feedbackImageTooMany;
+
+  /// No description provided for @profileAppSettings.
+  ///
+  /// In zh, this message translates to:
+  /// **'应用设置'**
+  String get profileAppSettings;
+
+  /// No description provided for @permissionSettingsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'权限管理'**
+  String get permissionSettingsTitle;
+
+  /// No description provided for @permissionSettingsEntryDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看应用申请的系统权限'**
+  String get permissionSettingsEntryDesc;
+
+  /// No description provided for @permissionSettingsIntro.
+  ///
+  /// In zh, this message translates to:
+  /// **'光汇只会在使用相关功能时申请系统权限。不同系统展示的权限可能不同，你可以在这里查看状态，或前往系统设置随时调整。'**
+  String get permissionSettingsIntro;
+
+  /// No description provided for @permissionSectionTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'系统权限'**
+  String get permissionSectionTitle;
+
+  /// Number of enabled permissions out of the total.
+  ///
+  /// In zh, this message translates to:
+  /// **'已开启 {granted} / {total} 项'**
+  String permissionSummary(int granted, int total);
+
+  /// No description provided for @permissionNotificationsTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'通知'**
+  String get permissionNotificationsTitle;
+
+  /// No description provided for @permissionNotificationsDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'接收评论回复、热榜提醒和系统消息'**
+  String get permissionNotificationsDesc;
+
+  /// No description provided for @permissionCameraTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'相机'**
+  String get permissionCameraTitle;
+
+  /// No description provided for @permissionCameraDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'拍摄头像和帖子图片'**
+  String get permissionCameraDesc;
+
+  /// No description provided for @permissionCameraNeeded.
+  ///
+  /// In zh, this message translates to:
+  /// **'相机权限未开启，请前往系统设置开启'**
+  String get permissionCameraNeeded;
+
+  /// No description provided for @permissionPhotosTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'照片'**
+  String get permissionPhotosTitle;
+
+  /// No description provided for @permissionPhotosDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'从相册选择图片，或将帖子图片保存到相册'**
+  String get permissionPhotosDesc;
+
+  /// No description provided for @permissionStatusGranted.
+  ///
+  /// In zh, this message translates to:
+  /// **'已开启'**
+  String get permissionStatusGranted;
+
+  /// No description provided for @permissionStatusLimited.
+  ///
+  /// In zh, this message translates to:
+  /// **'部分允许'**
+  String get permissionStatusLimited;
+
+  /// No description provided for @permissionStatusDenied.
+  ///
+  /// In zh, this message translates to:
+  /// **'未开启'**
+  String get permissionStatusDenied;
+
+  /// No description provided for @permissionStatusPermanentlyDenied.
+  ///
+  /// In zh, this message translates to:
+  /// **'已禁用'**
+  String get permissionStatusPermanentlyDenied;
+
+  /// No description provided for @permissionStatusRestricted.
+  ///
+  /// In zh, this message translates to:
+  /// **'受限'**
+  String get permissionStatusRestricted;
+
+  /// No description provided for @permissionOpenSettings.
+  ///
+  /// In zh, this message translates to:
+  /// **'打开系统设置'**
+  String get permissionOpenSettings;
+
+  /// No description provided for @permissionSettingsHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'如果系统不再弹出授权提示，请在系统设置中手动开启。'**
+  String get permissionSettingsHint;
+
+  /// No description provided for @permissionManageDialogTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'在系统设置中管理'**
+  String get permissionManageDialogTitle;
+
+  /// No description provided for @permissionManageDialogMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'如需开启、关闭或调整该权限，请在系统设置中操作。'**
+  String get permissionManageDialogMessage;
+
+  /// No description provided for @permissionGrantedToast.
+  ///
+  /// In zh, this message translates to:
+  /// **'权限已开启'**
+  String get permissionGrantedToast;
+
+  /// No description provided for @permissionRequestDenied.
+  ///
+  /// In zh, this message translates to:
+  /// **'未获得权限，你可以稍后重试'**
+  String get permissionRequestDenied;
+
+  /// No description provided for @permissionRequestFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'权限申请失败，请稍后重试'**
+  String get permissionRequestFailed;
+
+  /// No description provided for @permissionUnsupportedTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前平台不支持权限管理'**
+  String get permissionUnsupportedTitle;
+
+  /// No description provided for @permissionUnsupportedDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'请在 iOS 或 Android 设备上管理应用权限。'**
+  String get permissionUnsupportedDesc;
+
+  /// No description provided for @permissionLoadFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'权限状态加载失败'**
+  String get permissionLoadFailed;
+
+  /// No description provided for @permissionLoadFailedDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'请稍后重试'**
+  String get permissionLoadFailedDesc;
 }
 
 class _AppLocalizationsDelegate

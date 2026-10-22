@@ -1569,4 +1569,104 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get feedbackImageTooMany => 'До 6 изображений';
+
+  @override
+  String get profileAppSettings => 'Настройки приложения';
+
+  @override
+  String get permissionSettingsTitle => 'Управление разрешениями';
+
+  @override
+  String get permissionSettingsEntryDesc =>
+      'Просмотр системных разрешений приложения';
+
+  @override
+  String get permissionSettingsIntro =>
+      'LightHub запрашивает разрешения только при использовании соответствующих функций. На разных системах список может отличаться. Здесь можно проверить статус или изменить его в системных настройках.';
+
+  @override
+  String get permissionSectionTitle => 'Системные разрешения';
+
+  @override
+  String permissionSummary(int granted, int total) {
+    return 'Включено $granted из $total';
+  }
+
+  @override
+  String get permissionNotificationsTitle => 'Уведомления';
+
+  @override
+  String get permissionNotificationsDesc =>
+      'Ответы на комментарии, уведомления о популярных постах и системные сообщения';
+
+  @override
+  String get permissionCameraTitle => 'Камера';
+
+  @override
+  String get permissionCameraDesc => 'Съёмка аватара и изображений для постов';
+
+  @override
+  String get permissionCameraNeeded =>
+      'Доступ к камере отключён. Включите его в системных настройках';
+
+  @override
+  String get permissionPhotosTitle => 'Фотографии';
+
+  @override
+  String get permissionPhotosDesc =>
+      'Выбор изображений из галереи и сохранение изображений постов';
+
+  @override
+  String get permissionStatusGranted => 'Включено';
+
+  @override
+  String get permissionStatusLimited => 'Частично';
+
+  @override
+  String get permissionStatusDenied => 'Выключено';
+
+  @override
+  String get permissionStatusPermanentlyDenied => 'Заблокировано';
+
+  @override
+  String get permissionStatusRestricted => 'Ограничено';
+
+  @override
+  String get permissionOpenSettings => 'Открыть настройки';
+
+  @override
+  String get permissionSettingsHint =>
+      'Если система больше не показывает запрос, включите разрешение вручную в настройках.';
+
+  @override
+  String get permissionManageDialogTitle => 'Управление в настройках';
+
+  @override
+  String get permissionManageDialogMessage =>
+      'Чтобы включить, отключить или изменить это разрешение, воспользуйтесь системными настройками.';
+
+  @override
+  String get permissionGrantedToast => 'Разрешение включено';
+
+  @override
+  String get permissionRequestDenied =>
+      'Разрешение не получено. Попробуйте позже';
+
+  @override
+  String get permissionRequestFailed =>
+      'Не удалось запросить разрешение. Попробуйте позже';
+
+  @override
+  String get permissionUnsupportedTitle =>
+      'На этой платформе управление разрешениями недоступно';
+
+  @override
+  String get permissionUnsupportedDesc =>
+      'Управляйте разрешениями приложения на устройстве iOS или Android.';
+
+  @override
+  String get permissionLoadFailed => 'Не удалось загрузить статус разрешений';
+
+  @override
+  String get permissionLoadFailedDesc => 'Попробуйте позже';
 }
